@@ -12,10 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package ephemeralcontainersplugin
 
-import cmd "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers-plugin"
+import "github.com/spf13/cobra"
 
-func main() {
-	cmd.Execute()
+var editCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Command to edit the ephemeralContainers spec for a Pod",
+	Long:  "This command is a convenient wrapper that, in turn, uses the pod's ephemeralcontainers subresource",
+	Run: func(cmd *cobra.Command, args []string) {
+
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(editCmd)
 }

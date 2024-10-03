@@ -12,10 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
-
-import cmd "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers-plugin"
-
-func main() {
-	cmd.Execute()
-}
+package ephemeralcontainersplugin
