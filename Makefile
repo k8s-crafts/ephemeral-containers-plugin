@@ -64,3 +64,27 @@ build: ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- pref
 		-ldflags="$(PLUGIN_LDFLAGS)" \
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \
 		main.go
+
+# Default to $HOME/bin
+INSTALL_DIR ?= $(HOME)/bin
+
+.PHONY: install
+install: ## Install the plugin to PATH. The binary must be built first (i.e. make build).
+ifeq (,$(findstring $(INSTALL_DIR),$(PATH)))
+	$(error $(INSTALL_DIR) is not on $$PATH)
+else
+	@if [ -s "$(INSTALL_DIR)/kubectl-ephemeral_containers" ]; then \
+		echo "$(INSTALL_DIR)/kubectl-ephemeral_container exists. Please remove it with \"make uninstall\"."; \
+		exit 1; \
+	fi; \
+	install -m 755 $(BUILD_DIR)/kubectl-ephemeral_containers $(INSTALL_DIR)/kubectl-ephemeral_containers
+endif
+
+
+.PHONY: uninstall
+uninstall: ## Unistall the plugin from PATH.
+ifeq (,$(findstring $(INSTALL_DIR),$(PATH)))
+	$(error $(INSTALL_DIR) is not on $$PATH)
+else
+	- test -s $(INSTALL_DIR)/kubectl-ephemeral_containers && rm $(INSTALL_DIR)/kubectl-ephemeral_containers
+endif

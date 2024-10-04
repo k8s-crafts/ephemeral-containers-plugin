@@ -38,11 +38,15 @@ func Execute() {
 	}
 }
 
+var (
+	// Namespace to act on. If unset (i.e. ""), it means all namespaces
+	namespace string
+)
+
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	// Initialize klog flag sets. These flags are added to pflags in main
 	klog.InitFlags(nil)
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ephemeral-containers-plugin.yaml)")
+	// Define flags
+	rootCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "The namespace to operate on. If unset (i.e. \"\"), all namespaces are considered")
 }
