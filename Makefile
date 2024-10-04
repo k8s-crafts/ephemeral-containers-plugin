@@ -1,6 +1,19 @@
 SHELL := /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+## Host info
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
+
+## Tool version. Bump for each release
+VERSION ?= 0.1.0-dev
+
+# Git Commit ID
+GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
+GIT_COMMIT_ID := $(if $(shell git status --porcelain --untracked-files=no),$(GIT_COMMIT_NO)-dirty,$(GIT_COMMIT_NO))
+
+## Build flags
+PLUGIN_LDFLAGS := -X k8s-crafts/ephemeral-containers-plugin/pkg/version.version=v$(VERSION) -X k8s-crafts/ephemeral-containers-plugin/pkg/version.gitCommitID=$(GIT_COMMIT_ID)
 
 ##@ General
 
@@ -17,7 +30,7 @@ vet: ## Run go vet agaist source files.
 	go vet ./...
 
 .PHONY: add-license
-add-license: go-license ## Add license header to source files.
+add-license: fmt vet go-license ## Add license header to source files.
 	$(GO_LICENSE) --config license.yaml $(shell find ./ -name "*.go")
 
 .PHONY: add-license
@@ -40,6 +53,12 @@ $(GO_LICENSE): local-bin
 
 ##@ Build
 
+BUILD_DIR ?= $(shell pwd)/build
+
 .PHONY: build
 build: ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
-	mkdir -p build && go build -o build/kubectl-ephemeral-containers-plugin main.go
+	mkdir -p $(BUILD_DIR)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
+		-ldflags="$(PLUGIN_LDFLAGS)" \
+		-o $(BUILD_DIR)/kubectl-ephemeral-containers \
+		main.go
