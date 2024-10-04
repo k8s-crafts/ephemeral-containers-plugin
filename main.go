@@ -14,8 +14,20 @@
 
 package main
 
-import cmd "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers-plugin"
+import (
+	plugin "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers-plugin"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/flags"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
+	"os"
+)
 
 func main() {
-	cmd.Execute()
+	flags.SetFlagDefaults()
+
+	// Initialize the out and err destinations
+	out.SetOutFile(os.Stdout)
+	out.SetErrFile(os.Stderr)
+
+	// Execute the command
+	plugin.Execute()
 }

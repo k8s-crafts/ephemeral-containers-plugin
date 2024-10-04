@@ -15,7 +15,7 @@
 package ephemeralcontainersplugin
 
 import (
-	"fmt"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/version"
 
 	"github.com/spf13/cobra"
@@ -26,7 +26,8 @@ var versionCmd = &cobra.Command{
 	Short: "Output the plugin version",
 	Long:  "Output the plugin version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Version: %s\nGitCommitID: %s\n", version.GetVersion(), version.GetGitCommitID())
+		out.Ln("version: %v", version.GetVersion())
+		out.Ln("gitCommitID: %v", version.GetGitCommitID())
 	},
 }
 

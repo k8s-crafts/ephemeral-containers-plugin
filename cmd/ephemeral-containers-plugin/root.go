@@ -18,6 +18,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"k8s.io/klog/v2"
 )
 
 var rootCmd = &cobra.Command{
@@ -38,6 +39,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
+	klog.InitFlags(nil)
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ephemeral-containers-plugin.yaml)")
 }

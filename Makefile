@@ -5,6 +5,8 @@ SHELL := /usr/bin/env bash -o pipefail
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 
+MODULE := k8s-crafts/ephemeral-containers-plugin
+
 ## Tool version. Bump for each release
 VERSION ?= 0.1.0-dev
 
@@ -13,7 +15,7 @@ GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
 GIT_COMMIT_ID := $(if $(shell git status --porcelain --untracked-files=no),$(GIT_COMMIT_NO)-dirty,$(GIT_COMMIT_NO))
 
 ## Build flags
-PLUGIN_LDFLAGS := -X k8s-crafts/ephemeral-containers-plugin/pkg/version.version=v$(VERSION) -X k8s-crafts/ephemeral-containers-plugin/pkg/version.gitCommitID=$(GIT_COMMIT_ID)
+PLUGIN_LDFLAGS := -X $(MODULE)/pkg/version.version=v$(VERSION) -X $(MODULE)/pkg/version.gitCommitID=$(GIT_COMMIT_ID)
 
 ##@ General
 
