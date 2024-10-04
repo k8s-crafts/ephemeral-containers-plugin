@@ -62,5 +62,5 @@ build: ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- pref
 	mkdir -p $(BUILD_DIR)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
 		-ldflags="$(PLUGIN_LDFLAGS)" \
-		-o $(BUILD_DIR)/kubectl-ephemeral-containers \
+		-o $(BUILD_DIR)/kubectl-ephemeral_containers \
 		main.go

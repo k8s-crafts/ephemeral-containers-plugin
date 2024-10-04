@@ -25,6 +25,9 @@ var rootCmd = &cobra.Command{
 	Use:   "ephemeral-containers-plugin",
 	Short: "A kubectl plugin to directly modify pods.spec.ephemeralContainers",
 	Long:  "A kubectl plugin to directly modify pods.spec.ephemeralContainers. It works by interacting the pod's ephemeralcontainers subresource",
+	Annotations: map[string]string{
+		cobra.CommandDisplayNameAnnotation: "kubectl ephemeral-containers",
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
