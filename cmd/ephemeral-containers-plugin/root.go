@@ -15,6 +15,8 @@
 package ephemeralcontainersplugin
 
 import (
+	"fmt"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -41,6 +43,9 @@ func Execute() {
 var (
 	// Namespace to act on. If unset (i.e. ""), it means all namespaces
 	namespace string
+
+	// Format for output
+	outputFormat string
 )
 
 func init() {
@@ -48,5 +53,6 @@ func init() {
 	klog.InitFlags(nil)
 
 	// Define flags
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", formatter.Table, fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML))
 	rootCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "The namespace to operate on. If unset (i.e. \"\"), all namespaces are considered")
 }

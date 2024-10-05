@@ -15,6 +15,7 @@
 package ephemeralcontainersplugin
 
 import (
+	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"
@@ -40,11 +41,12 @@ var listCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if len(pods) > 0 {
-			out.Ln("Pods: %v", pods)
-		} else {
-			out.Ln("No pods with ephemeral containers in namespace %s", namespace)
+		output, err := formatter.FormatListOutput(outputFormat, formatter.ConvertPodsToResourceData(pods))
+		if err != nil {
+			os.Exit(1)
 		}
+
+		out.Ln("%v", output)
 	},
 }
 
