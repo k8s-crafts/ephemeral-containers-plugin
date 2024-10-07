@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ephemeralcontainersplugin
+package ephemeralcontainers
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "ephemeral-containers-plugin",
+	Use:   "kubectl-ephemeral_containers",
 	Short: "A kubectl plugin to directly modify pods.spec.ephemeralContainers",
 	Long:  "A kubectl plugin to directly modify pods.spec.ephemeralContainers. It works by interacting the pod's ephemeralcontainers subresource",
 	Annotations: map[string]string{

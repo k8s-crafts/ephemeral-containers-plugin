@@ -15,7 +15,7 @@
 package main
 
 import (
-	plugin "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers-plugin"
+	plugin "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/flags"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"

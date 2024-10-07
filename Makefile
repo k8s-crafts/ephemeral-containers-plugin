@@ -65,6 +65,10 @@ build: ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- pref
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \
 		main.go
 
+.PHONY: clean
+clean: ## Clean built binaries
+	- rm -rf $(BUILD_DIR)
+
 # Default to $HOME/bin
 INSTALL_DIR ?= $(HOME)/bin
 
