@@ -45,5 +45,4 @@ func SetFlagDefaults() {
 			klog.Errorf("Failed to set default flag for alsologtostderr: %v", err)
 		}
 	}
-
 }

@@ -15,53 +15,19 @@
 package k8s
 
 import (
-	"context"
-
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 // Get a clientset to interact with Kubernetes API
 // Config precedence:
 // * --kubeconfig flag pointing at a file
 // * KUBECONFIG environment variable pointing at a file
-// * In-cluster config if running in cluster
 // * $HOME/.kube/config if exists.
-func NewClientset() (*kubernetes.Clientset, error) {
-	config, err := config.GetConfig()
+func NewClientset(kubeConfig *genericclioptions.ConfigFlags) (*kubernetes.Clientset, error) {
+	config, err := kubeConfig.ToRESTConfig()
 	if err != nil {
 		return nil, err
 	}
 	return kubernetes.NewForConfig(config)
-}
-
-type PodFilterFn func(pod corev1.Pod) bool
-
-// List pods by filters in the specified namespace
-// If namespace is empty (i.e. ""), list in all namespaces
-func ListPods(client *kubernetes.Clientset, namespace string, filters ...PodFilterFn) ([]corev1.Pod, error) {
-	podList, err := client.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return ApplyPodFilter(podList.Items, filters...), nil
-}
-
-// Apply filters (if any) to a list of pods
-func ApplyPodFilter(pods []corev1.Pod, filters ...PodFilterFn) (result []corev1.Pod) {
-	if len(filters) == 0 {
-		return pods
-	}
-
-	for _, pod := range pods {
-		for _, filter := range filters {
-			if filter(pod) {
-				result = append(result, pod)
-			}
-		}
-	}
-
-	return result
 }

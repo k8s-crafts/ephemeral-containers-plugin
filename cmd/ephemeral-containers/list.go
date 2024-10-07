@@ -15,6 +15,7 @@
 package ephemeralcontainers
 
 import (
+	"fmt"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
@@ -29,12 +30,12 @@ var listCmd = &cobra.Command{
 	Short: "List the Pods with ephemeral containers in the current namespace",
 	Long:  "List the Pods with ephemeral containers in the current namespace",
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := k8s.NewClientset()
+		client, err := k8s.NewClientset(kubeConfig)
 		if err != nil {
 			os.Exit(1)
 		}
 
-		pods, err := k8s.ListPods(client, namespace, func(pod corev1.Pod) bool {
+		pods, err := k8s.ListPods(client, *kubeConfig.Namespace, func(pod corev1.Pod) bool {
 			return len(pod.Spec.EphemeralContainers) > 0
 		})
 		if err != nil {
@@ -50,6 +51,15 @@ var listCmd = &cobra.Command{
 	},
 }
 
+var (
+
+	// Format for output
+	outputFormat    string
+	outputFlagUsage string = fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
+)
+
 func init() {
+	listCmd.Flags().StringVarP(&outputFormat, "output", "o", formatter.Table, outputFlagUsage)
+
 	rootCmd.AddCommand(listCmd)
 }
