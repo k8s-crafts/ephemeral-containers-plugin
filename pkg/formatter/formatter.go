@@ -17,6 +17,8 @@ package formatter
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/version"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
@@ -72,18 +74,12 @@ func FormatListOutput(format string, data []ResourceData) (string, error) {
 	}
 
 	switch format {
-	case JSON, YAML:
+	case JSON:
 		jsonOut, err := json.MarshalIndent(data, "", "  ")
-		if err != nil {
-			return "", err
-		}
-
-		if format == YAML {
-			yamlOut, err := yaml.JSONToYAML(jsonOut)
-			return string(yamlOut), err
-		}
-
 		return string(jsonOut), err
+	case YAML:
+		yamlOut, err := yaml.Marshal(data)
+		return string(yamlOut), err
 	default:
 		var buffer bytes.Buffer
 		table := tablewriter.NewWriter(&buffer)
@@ -98,5 +94,22 @@ func FormatListOutput(format string, data []ResourceData) (string, error) {
 		table.Render()
 
 		return buffer.String(), nil
+	}
+}
+
+func FormatVersionOutput(format string, version *version.VersionInfo) (string, error) {
+	if version == nil {
+		return "", nil
+	}
+
+	switch format {
+	case JSON:
+		jsonOut, err := json.MarshalIndent(version, "", "  ")
+		return string(jsonOut), err
+	case YAML:
+		yamlOut, err := yaml.Marshal(version)
+		return string(yamlOut), err
+	default:
+		return fmt.Sprintf("version: %v\ngitCommitID: %v", version.Version, version.GitCommitID), nil
 	}
 }

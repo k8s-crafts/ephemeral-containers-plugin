@@ -15,7 +15,6 @@
 package ephemeralcontainers
 
 import (
-	"fmt"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
@@ -51,15 +50,6 @@ var listCmd = &cobra.Command{
 	},
 }
 
-var (
-
-	// Format for output
-	outputFormat    string
-	outputFlagUsage string = fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
-)
-
 func init() {
-	listCmd.Flags().StringVarP(&outputFormat, "output", "o", formatter.Table, outputFlagUsage)
-
 	rootCmd.AddCommand(listCmd)
 }

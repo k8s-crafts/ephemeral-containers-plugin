@@ -22,10 +22,22 @@ var (
 	gitCommitID string = ""
 )
 
+type VersionInfo struct {
+	Version     string `json:"version,omitempty"`
+	GitCommitID string `json:"gitCommitID,omitempty"`
+}
+
 func GetVersion() string {
 	return version
 }
 
 func GetGitCommitID() string {
 	return gitCommitID
+}
+
+func NewVersionInfo() *VersionInfo {
+	return &VersionInfo{
+		Version:     version,
+		GitCommitID: gitCommitID,
+	}
 }

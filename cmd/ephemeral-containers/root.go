@@ -15,6 +15,8 @@
 package ephemeralcontainers
 
 import (
+	"fmt"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -41,11 +43,17 @@ func Execute() {
 
 var (
 	kubeConfig *genericclioptions.ConfigFlags
+	// Format for output
+	outputFormat    string
+	outputFlagUsage string = fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
 )
 
 func init() {
 	// Initialize klog flag sets. These flags are added to pflags in main
 	klog.InitFlags(nil)
+
+	// Define flags
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", formatter.Table, outputFlagUsage)
 
 	// Define kube CLI generic flags
 	kubeConfig = genericclioptions.NewConfigFlags(true)
