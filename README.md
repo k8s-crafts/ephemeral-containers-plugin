@@ -14,6 +14,10 @@ This project is a plugin (i.e. an extension) to `kubectl` that allows such direc
 - Kubernetes `>= v1.25.0-0`
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 
+## Supported Platforms
+
+Currently, the plugin is being tested only on Fedora (i.e. Fedora 40+).
+
 ## Installation
 
 ### Build from source
