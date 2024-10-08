@@ -81,7 +81,12 @@ else
 		echo "$(INSTALL_DIR)/kubectl-ephemeral_containers exists. Please remove it with \"make uninstall\"."; \
 		exit 1; \
 	fi; \
+	if [ ! -x "$(BUILD_DIR)/kubectl-ephemeral_containers" ]; then \
+		echo "$(BUILD_DIR)/kubectl-ephemeral_containers executable does not exist. Please build it with \"make build\"."; \
+		exit 2; \
+	fi; \
 	install -m 755 $(BUILD_DIR)/kubectl-ephemeral_containers $(INSTALL_DIR)/kubectl-ephemeral_containers
+	@echo Installed to $(BUILD_DIR)/kubectl-ephemeral_containers
 endif
 
 
@@ -91,4 +96,5 @@ ifeq (,$(findstring $(INSTALL_DIR),$(PATH)))
 	$(error $(INSTALL_DIR) is not on $$PATH)
 else
 	- test -s $(INSTALL_DIR)/kubectl-ephemeral_containers && rm $(INSTALL_DIR)/kubectl-ephemeral_containers
+	@echo Removed $(BUILD_DIR)/kubectl-ephemeral_containers
 endif
