@@ -71,10 +71,12 @@ func GetPodNameFromArgs(args []string) (string, error) {
 		parts := strings.Split(args[0], "/")
 		if len(parts) > 2 {
 			return "", errors.New("single argument must have format: \"pod/pod-name\"")
+		} else if len(parts) == 1 { // Assume pod-name
+			return parts[0], nil
 		}
-		return parts[1], nil
+		return parts[1], nil // pod/pod-name
 	case 2:
-		return args[1], nil
+		return args[1], nil // pod(s) pod-name
 	default:
 		return "", errors.New("invalid number of arguments. Expect 1 or 2 arguments: \"pod/pod-name\", or \"pod pod-name\"")
 	}

@@ -30,7 +30,7 @@ var editCmd = &cobra.Command{
 	Use:   "edit",
 	Short: "Command to edit the ephemeralContainers spec for a Pod",
 	Long:  "This command is a convenient wrapper that, in turn, uses the pod's ephemeralcontainers subresource",
-	// Either "pod/pod-name" or "pod pod-name"
+	// Format: "pod/pod-name", "pod pod-name", "pod-name"
 	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		podName, err := k8s.GetPodNameFromArgs(args)
