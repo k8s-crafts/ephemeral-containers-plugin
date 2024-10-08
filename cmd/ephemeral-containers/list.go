@@ -15,6 +15,7 @@
 package ephemeralcontainers
 
 import (
+	"context"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
@@ -34,7 +35,7 @@ var listCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		pods, err := k8s.ListPods(client, *kubeConfig.Namespace, func(pod corev1.Pod) bool {
+		pods, err := k8s.ListPods(context.TODO(), client, *kubeConfig.Namespace, func(pod corev1.Pod) bool {
 			return len(pod.Spec.EphemeralContainers) > 0
 		})
 		if err != nil {

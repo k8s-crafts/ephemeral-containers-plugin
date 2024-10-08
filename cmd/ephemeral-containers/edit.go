@@ -43,7 +43,7 @@ var editCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		pod, err := k8s.GetPod(client, *kubeConfig.Namespace, podName)
+		pod, err := k8s.GetPod(context.TODO(), client, *kubeConfig.Namespace, podName)
 		if err != nil {
 			if kerrors.IsNotFound(err) {
 				out.Errf("pod/%s is not found in namespace %s", podName, *kubeConfig.Namespace)
@@ -58,7 +58,7 @@ var editCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if err = k8s.UpdateEphemeralContainerForPod(client, obj); err != nil {
+		if err = k8s.UpdateEphemeralContainersForPod(context.TODO(), client, obj); err != nil {
 			os.Exit(1)
 		}
 
