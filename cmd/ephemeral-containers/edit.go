@@ -24,7 +24,6 @@ import (
 
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 var editCmd = &cobra.Command{
@@ -46,9 +45,6 @@ var editCmd = &cobra.Command{
 
 		pod, err := k8s.GetPod(context.TODO(), client, *kubeConfig.Namespace, podName)
 		if err != nil {
-			if kerrors.IsNotFound(err) {
-				out.Errf("pod/%s is not found in namespace %s", podName, *kubeConfig.Namespace)
-			}
 			ExitError(err, 1)
 		}
 

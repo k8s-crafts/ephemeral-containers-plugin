@@ -45,7 +45,12 @@ var listCmd = &cobra.Command{
 			ExitError(err, 1)
 		}
 
-		out.Ln("%v", output)
+		if len(output) > 0 {
+			out.Ln("%v", output)
+		} else {
+			out.Ln("No pods with ephemeral containers found in namespace %s", *kubeConfig.Namespace)
+		}
+
 	},
 }
 

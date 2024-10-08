@@ -19,6 +19,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+var (
+	NAMESPACE_DEFAULT string = "default"
+)
+
 // Get a clientset to interact with Kubernetes API
 // Config precedence:
 // * --kubeconfig flag pointing at a file

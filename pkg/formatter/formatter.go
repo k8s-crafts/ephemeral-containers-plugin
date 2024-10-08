@@ -70,7 +70,7 @@ func GetTableRow(data ResourceData) []string {
 // Formatter for list output
 func FormatListOutput(format string, data []ResourceData) (string, error) {
 	if len(data) == 0 {
-		return "No resources found", nil
+		return "", nil
 	}
 
 	switch format {

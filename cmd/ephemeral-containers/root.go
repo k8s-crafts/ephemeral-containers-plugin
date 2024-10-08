@@ -17,6 +17,7 @@ package ephemeralcontainers
 import (
 	"fmt"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"
 
@@ -32,6 +33,11 @@ var rootCmd = &cobra.Command{
 	Annotations: map[string]string{
 		cobra.CommandDisplayNameAnnotation: "kubectl ephemeral-containers",
 	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if *kubeConfig.Namespace == "" {
+			kubeConfig.Namespace = &k8s.NAMESPACE_DEFAULT
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -44,7 +50,7 @@ func Execute() {
 
 // Log errors and exit non-zero
 func ExitError(err error, exitCode int) {
-	out.Errf("%v", err)
+	out.Errf("%s", err.Error())
 	os.Exit(exitCode)
 }
 
