@@ -16,6 +16,7 @@ package files
 
 import (
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 
@@ -31,11 +32,15 @@ const (
 )
 
 // Edit a k8s resource and return the updated one
-func EditResource[r runtime.Object](ctx context.Context, editor string, obj r, result r) (r, error) {
+func EditResource[r runtime.Object](ctx context.Context, editor string, obj r, result r) (_ r, err error) {
 	f, err := os.CreateTemp(os.TempDir(), TMP_FILE_PATTERN)
 	if err != nil {
 		return result, err
 	}
+	defer func() {
+		// Clean up
+		err = errors.Join(err, f.Close(), os.Remove(f.Name()))
+	}()
 
 	content, err := yaml.Marshal(obj)
 	if err != nil {
