@@ -1,0 +1,45 @@
+name: Lint
+
+concurrency:
+  group: ci-${{ github.run_id }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+      - feature-.+
+      - v[0-9]+(\.[0-9]+){0,2}
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+    branches:
+      - main
+      - feature-.+
+      - v[0-9]+(\.[0-9]+){0,2}
+
+jobs:
+  check-license:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "^1.22.0"
+      - name: Check license headers
+        run: make check-license
+
+  check-fmt-vet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "^1.22.0"
+      - name: Check license headers
+        run: make fmt vet
+      - run: git diff --exit-code || exit 1
