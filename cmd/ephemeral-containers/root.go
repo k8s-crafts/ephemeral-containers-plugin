@@ -15,11 +15,14 @@
 package ephemeralcontainers
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -34,8 +37,32 @@ var rootCmd = &cobra.Command{
 		cobra.CommandDisplayNameAnnotation: "kubectl ephemeral-containers",
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// Set namespace to "default" if unset
 		if *kubeConfig.Namespace == "" {
 			kubeConfig.Namespace = &k8s.NAMESPACE_DEFAULT
+		}
+
+		var ctx context.Context
+		var cancel context.CancelFunc
+		// Initialize the context with timeout
+		// "0" means no time-out was requested
+		if kubeConfig.Timeout != nil && *kubeConfig.Timeout != "0" {
+			duration, err := time.ParseDuration(*kubeConfig.Timeout)
+			if err != nil {
+				ExitError(errors.Join(fmt.Errorf("failed to parse duration: %s", *kubeConfig.Timeout), err), 2)
+			}
+			ctx, cancel = context.WithTimeout(context.Background(), duration)
+		} else {
+			ctx = context.TODO()
+		}
+		kubeConfig.ContextOptions = k8s.ContextOptions{
+			Context: ctx,
+			Cancel:  cancel,
+		}
+	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		if kubeConfig.ContextOptions.Cancel != nil {
+			kubeConfig.ContextOptions.Cancel()
 		}
 	},
 }
@@ -55,7 +82,7 @@ func ExitError(err error, exitCode int) {
 }
 
 var (
-	kubeConfig *genericclioptions.ConfigFlags
+	kubeConfig *k8s.KubeConfig
 	// Format for output
 	outputFormat    string
 	outputFlagUsage string = fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
@@ -69,6 +96,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", formatter.Table, outputFlagUsage)
 
 	// Define kube CLI generic flags
-	kubeConfig = genericclioptions.NewConfigFlags(true)
+	kubeConfig = &k8s.KubeConfig{
+		ConfigFlags: genericclioptions.NewConfigFlags(true),
+	}
 	kubeConfig.AddFlags(rootCmd.PersistentFlags())
 }

@@ -15,6 +15,8 @@
 package k8s
 
 import (
+	"context"
+
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
 )
@@ -23,12 +25,24 @@ var (
 	NAMESPACE_DEFAULT string = "default"
 )
 
+// Represent context with a cancel func
+type ContextOptions struct {
+	context.Context
+	Cancel context.CancelFunc
+}
+
+// Represent kube client configurations
+type KubeConfig struct {
+	*genericclioptions.ConfigFlags
+	ContextOptions ContextOptions
+}
+
 // Get a clientset to interact with Kubernetes API
 // Config precedence:
 // * --kubeconfig flag pointing at a file
 // * KUBECONFIG environment variable pointing at a file
 // * $HOME/.kube/config if exists.
-func NewClientset(kubeConfig *genericclioptions.ConfigFlags) (*kubernetes.Clientset, error) {
+func NewClientset(kubeConfig *KubeConfig) (*kubernetes.Clientset, error) {
 	config, err := kubeConfig.ToRESTConfig()
 	if err != nil {
 		return nil, err
