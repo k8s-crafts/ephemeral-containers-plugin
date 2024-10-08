@@ -17,6 +17,7 @@ package ephemeralcontainers
 import (
 	"fmt"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -37,8 +38,14 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
+		ExitError(err, 1)
 	}
+}
+
+// Log errors and exit non-zero
+func ExitError(err error, exitCode int) {
+	out.Errf("%v", err)
+	os.Exit(exitCode)
 }
 
 var (

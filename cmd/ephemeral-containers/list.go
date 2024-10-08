@@ -19,7 +19,6 @@ import (
 	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
-	"os"
 
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
@@ -32,24 +31,29 @@ var listCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		client, err := k8s.NewClientset(kubeConfig)
 		if err != nil {
-			os.Exit(1)
+			ExitError(err, 1)
 		}
 
-		pods, err := k8s.ListPods(context.TODO(), client, *kubeConfig.Namespace, func(pod corev1.Pod) bool {
-			return len(pod.Spec.EphemeralContainers) > 0
-		})
+		pods, err := k8s.ListPods(context.TODO(), client, *kubeConfig.Namespace, filterFn)
 		if err != nil {
-			os.Exit(1)
+			ExitError(err, 1)
 		}
 
-		output, err := formatter.FormatListOutput(outputFormat, formatter.ConvertPodsToResourceData(pods))
+		resourceData := formatter.ConvertPodsToResourceData(pods)
+		output, err := formatter.FormatListOutput(outputFormat, resourceData)
 		if err != nil {
-			os.Exit(1)
+			ExitError(err, 1)
 		}
 
 		out.Ln("%v", output)
 	},
 }
+
+var (
+	filterFn = func(pod corev1.Pod) bool {
+		return len(pod.Spec.EphemeralContainers) > 0
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(listCmd)
