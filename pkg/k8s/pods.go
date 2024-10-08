@@ -16,6 +16,8 @@ package k8s
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,6 +36,16 @@ func ListPods(client *kubernetes.Clientset, namespace string, filters ...PodFilt
 	return ApplyPodFilter(podList.Items, filters...), nil
 }
 
+// Get pod by name in a specific namespace
+func GetPod(client *kubernetes.Clientset, namespace, name string) (*corev1.Pod, error) {
+	return client.CoreV1().Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+}
+
+func UpdateEphemeralContainerForPod(client *kubernetes.Clientset, pod *corev1.Pod) error {
+	_, err := client.CoreV1().Pods(pod.Namespace).UpdateEphemeralContainers(context.TODO(), pod.Name, pod, metav1.UpdateOptions{})
+	return err
+}
+
 // Apply filters (if any) to a list of pods
 func ApplyPodFilter(pods []corev1.Pod, filters ...PodFilterFn) (result []corev1.Pod) {
 	if len(filters) == 0 {
@@ -49,4 +61,20 @@ func ApplyPodFilter(pods []corev1.Pod, filters ...PodFilterFn) (result []corev1.
 	}
 
 	return result
+}
+
+// Get pod name from CLI arguments
+func GetPodNameFromArgs(args []string) (string, error) {
+	switch len(args) {
+	case 1:
+		parts := strings.Split(args[0], "/")
+		if len(parts) > 2 {
+			return "", errors.New("single argument must have format: \"pod/pod-name\"")
+		}
+		return parts[1], nil
+	case 2:
+		return args[1], nil
+	default:
+		return "", errors.New("invalid number of arguments. Expect 1 or 2 arguments: \"pod/pod-name\", or \"pod pod-name\"")
+	}
 }

@@ -14,17 +14,66 @@
 
 package ephemeralcontainers
 
-import "github.com/spf13/cobra"
+import (
+	"context"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/files"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
+	"os"
+
+	"github.com/spf13/cobra"
+	corev1 "k8s.io/api/core/v1"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
+)
 
 var editCmd = &cobra.Command{
 	Use:   "edit",
 	Short: "Command to edit the ephemeralContainers spec for a Pod",
 	Long:  "This command is a convenient wrapper that, in turn, uses the pod's ephemeralcontainers subresource",
+	// Either "pod/pod-name" or "pod pod-name"
+	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
+		podName, err := k8s.GetPodNameFromArgs(args)
+		if err != nil {
+			os.Exit(1)
+		}
 
+		client, err := k8s.NewClientset(kubeConfig)
+		if err != nil {
+			os.Exit(1)
+		}
+
+		pod, err := k8s.GetPod(client, *kubeConfig.Namespace, podName)
+		if err != nil {
+			if kerrors.IsNotFound(err) {
+				out.Errf("pod/%s is not found in namespace %s", podName, *kubeConfig.Namespace)
+			}
+			os.Exit(1)
+		}
+
+		editorCmd := files.GetEditorCmd(editor)
+		obj, err := files.EditResource(context.TODO(), editorCmd, pod, &corev1.Pod{})
+		if err != nil {
+			out.Errf("failed to edit pod/%s", podName)
+			os.Exit(1)
+		}
+
+		if err = k8s.UpdateEphemeralContainerForPod(client, obj); err != nil {
+			os.Exit(1)
+		}
+
+		out.Ln("pod/%s successfully editted", podName)
 	},
 }
 
+var (
+	editor      string
+	editorUsage string = "Editor to use. If unset, the plugin will look into environment variable KUBE_EDITOR, EDITOR or fall back to vim"
+)
+
 func init() {
+	// Set default to empty to allow search in env vars
+	editCmd.Flags().StringVarP(&editor, "editor", "e", "", editorUsage)
+
 	rootCmd.AddCommand(editCmd)
 }
