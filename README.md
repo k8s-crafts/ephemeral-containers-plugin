@@ -14,10 +14,6 @@ This project is a plugin (i.e. an extension) to `kubectl` that allows such direc
 - Kubernetes `>= v1.25.0-0`
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 
-## Supported Platforms
-
-Currently, the plugin is being tested only on Fedora (i.e. Fedora 40+).
-
 ## Installation
 
 ### Build from source
@@ -32,7 +28,44 @@ make build install
 kubectl ephemeral-containers version
 ```
 
-## Command-line Options
+## User Guides
+
+### Interactively add ephemeral containers to pods
+
+The plugin supports the subcommand `edit` to interactively edit the `.spec.ephemeralContainers` field of pods.
+
+```bash
+$ kubectl ephemeral-containers edit pod/ephemeral-demo
+```
+
+### List pods with ephemeral containers
+
+The plugin supports the subcommand `list` to list all pods with configured ephemeral containers in the current namespace.
+
+By default, the output is rendered as a table. You can overwrite it with `--output <format>` (i.e. `-o`) flag.
+
+
+```console
+$ kubectl ephemeral-containers list
++----------------+-----------+----------------------+
+|      POD       | NAMESPACE | EPHEMERAL CONTAINERS |
++----------------+-----------+----------------------+
+| ephemeral-demo | default   | debugger             |
++----------------+-----------+----------------------+
+
+$ kubectl ephemeral-containers list -o json
+[
+  {
+    "name": "ephemeral-demo",
+    "namespace": "default",
+    "ephemeralContainers": [
+      "debugger"
+    ]
+  }
+]
+```
+
+### Command-line Options
 
 The flag `--help` can be used to display available command-line options.
 
