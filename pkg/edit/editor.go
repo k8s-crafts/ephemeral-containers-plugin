@@ -95,6 +95,9 @@ func GetEditorCmd(fromFlag string) string {
 		func() string {
 			return os.Getenv(ENV_EDITOR)
 		},
+		func() string {
+			return DEFAULT_EDITOR
+		},
 	)
 }
 
