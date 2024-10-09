@@ -16,39 +16,49 @@ package version
 
 import "testing"
 
-// Setting up tests and mocks
-func BeforeEach() {
-	version = "v1.0.0-dirty"
-	gitCommitID = "9c474a"
-}
-
-func TestGetVersion(t *testing.T) {
-	BeforeEach()
-
-	v := GetVersion()
-	if v != version {
-		t.Fatalf("expected version %s but got %s", version, v)
-	}
-}
-
-func TestGetGitCommitID(t *testing.T) {
-	BeforeEach()
-
-	id := GetGitCommitID()
-	if id != gitCommitID {
-		t.Fatalf("expected gitCommitID %s but got %s", version, id)
-	}
+func beforeEach() {
+	version = "v0.0.0-unset"
+	gitCommitID = ""
 }
 
 func TestNewVersionInfo(t *testing.T) {
-	BeforeEach()
+	tests := []struct {
+		description string
+		setup       func()
+		expected    *VersionInfo
+	}{
+		{
+			description: "should return default version info if unset",
+			setup:       func() {},
+			expected: &VersionInfo{
+				Version:     "v0.0.0-unset",
+				GitCommitID: "",
+			},
+		},
+		{
+			description: "should return correct version info if set during build",
+			setup: func() {
+				version = "v1.0.0"
+				gitCommitID = "9c474a"
+			},
+			expected: &VersionInfo{
+				Version:     "v1.0.0",
+				GitCommitID: "9c474a",
+			},
+		},
+	}
 
-	info := NewVersionInfo()
-	expected := &VersionInfo{
-		Version:     version,
-		GitCommitID: gitCommitID,
+	for _, test := range tests {
+		beforeEach()
+		t.Run(test.description, func(t *testing.T) {
+			test.setup()
+
+			actual := NewVersionInfo()
+			expected := test.expected
+			if actual == nil || actual.Version != expected.Version || actual.GitCommitID != expected.GitCommitID {
+				t.Fatalf("expected versionInfo %+v but received %+v", expected, actual)
+			}
+		})
 	}
-	if info == nil || info.Version != expected.Version || info.GitCommitID != expected.GitCommitID {
-		t.Fatalf("expected versionInfo %+v but got %+v", expected, info)
-	}
+
 }
