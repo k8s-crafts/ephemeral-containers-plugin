@@ -37,11 +37,11 @@ test: vet fmt ## Run go tests.
 
 .PHONY: add-license
 add-license: go-license ## Add license header to source files.
-	$(GO_LICENSE) --config license.yaml $(shell find ./ -name "*.go")
+	$(GO_LICENSE) --config go-license.yaml $(shell find ./ -name "*.go")
 
 .PHONY: add-license
 check-license: go-license ## Check license header to source files.
-	$(GO_LICENSE) --verify --config license.yaml $(shell find ./ -name "*.go")
+	$(GO_LICENSE) --verify --config go-license.yaml $(shell find ./ -name "*.go")
 	
 ##@ Install tools
 
