@@ -64,7 +64,7 @@ BUILD_DIR ?= $(shell pwd)/build
 .PHONY: build
 build: vet fmt ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
 	mkdir -p $(BUILD_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
 		-ldflags="$(PLUGIN_LDFLAGS)" \
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \
 		main.go

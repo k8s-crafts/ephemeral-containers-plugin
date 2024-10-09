@@ -1,0 +1,54 @@
+version: 2
+
+project_name: kubectl-ephemeral_containers
+
+git:
+  # Tags to be ignored by GoReleaser.
+  # This means that GoReleaser will not pick up tags that match any of the
+  # provided values as either previous or current tags.
+  ignore_tags:
+    - nightly
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - binary: kubectl-ephemeral_containers
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -X k8s-crafts/ephemeral-containers-plugin/pkg/version.version=v{{.Version}}
+      - -X k8s-crafts/ephemeral-containers-plugin/pkg/version.gitCommitID={{.FullCommit}}
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - Merge pull request
+      - Merge branch
