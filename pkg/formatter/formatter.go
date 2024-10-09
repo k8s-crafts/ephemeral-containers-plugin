@@ -97,6 +97,7 @@ func FormatListOutput(format string, data []ResourceData) (string, error) {
 	}
 }
 
+// Formatter for version output
 func FormatVersionOutput(format string, version *version.VersionInfo) (string, error) {
 	if version == nil {
 		return "", nil

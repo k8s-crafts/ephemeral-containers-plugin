@@ -16,6 +16,12 @@ package k8s
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
@@ -28,13 +34,69 @@ var (
 // Represent context with a cancel func
 type ContextOptions struct {
 	context.Context
-	Cancel context.CancelFunc
+	Cancel  context.CancelFunc
+	SigChan chan os.Signal
+}
+
+// Get a new ContextOptions struct
+func NewContextOptions() *ContextOptions {
+	return &ContextOptions{}
+}
+
+// Set up the options with the following steps:
+// * Create a Context with timeout if any. Otherwise, no timeout is set (i.e. context.Background())
+// * Create a chan os.Signal to handle SIGTERM, SIGINT (Ctrl + C),SIGHUP (terminal is closed)
+func (opts *ContextOptions) Init(timeout *string) error {
+	// Global context
+	var ctx context.Context
+	var cancel context.CancelFunc
+	// Initialize the context with timeout
+	// "0" means no time-out was requested
+	if timeout != nil && *timeout != "0" {
+		duration, err := time.ParseDuration(*timeout)
+		if err != nil {
+			return errors.Join(fmt.Errorf("failed to parse duration: %s", *timeout), err)
+		}
+		ctx, cancel = context.WithTimeout(context.Background(), duration)
+	} else {
+		ctx, cancel = context.Background(), func() {
+			// no-op
+		}
+	}
+
+	// Signal handler
+	opts.SigChan = make(chan os.Signal, 1)
+
+	signal.Notify(opts.SigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+
+	go func() {
+		select {
+		case <-opts.SigChan:
+			// Receive a signal
+			opts.Cancel()
+		case <-opts.Context.Done():
+		}
+	}()
+
+	opts.Context = ctx
+	opts.Cancel = func() {
+		signal.Stop(opts.SigChan)
+		cancel()
+	}
+	return nil
 }
 
 // Represent kube client configurations
 type KubeConfig struct {
 	*genericclioptions.ConfigFlags
-	ContextOptions ContextOptions
+	ContextOptions *ContextOptions
+}
+
+// Get a new KubeConfig struct
+func NewKubeConfig(configFlags *genericclioptions.ConfigFlags) *KubeConfig {
+	return &KubeConfig{
+		ConfigFlags: configFlags,
+	}
 }
 
 // Get a clientset to interact with Kubernetes API

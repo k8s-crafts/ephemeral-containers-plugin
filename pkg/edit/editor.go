@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package files
+package edit
 
 import (
 	"context"
@@ -94,6 +94,9 @@ func GetEditorCmd(fromFlag string) string {
 		},
 		func() string {
 			return os.Getenv(ENV_EDITOR)
+		},
+		func() string {
+			return DEFAULT_EDITOR
 		},
 	)
 }

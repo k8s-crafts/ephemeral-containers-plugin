@@ -24,15 +24,19 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "Makefile for ephemeral-containers-plugin project\n\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: fmt
-fmt: ## Run go fmt against source files.
+fmt: add-license ## Run go fmt against source files.
 	go fmt ./...
 
 .PHONY: vet
-vet: ## Run go vet agaist source files.
+vet: ## Run go vet against source files.
 	go vet ./...
 
+.PHONY: test
+test: vet fmt ## Run go tests.
+	go test -v -cover -coverpkg=./... -coverprofile cover.out  ./...
+
 .PHONY: add-license
-add-license: fmt vet go-license ## Add license header to source files.
+add-license: go-license ## Add license header to source files.
 	$(GO_LICENSE) --config license.yaml $(shell find ./ -name "*.go")
 
 .PHONY: add-license
@@ -58,7 +62,7 @@ $(GO_LICENSE): local-bin
 BUILD_DIR ?= $(shell pwd)/build
 
 .PHONY: build
-build: ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
+build: vet fmt ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
 	mkdir -p $(BUILD_DIR)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
 		-ldflags="$(PLUGIN_LDFLAGS)" \
