@@ -31,7 +31,7 @@ func TestSetFileStreams(t *testing.T) {
 		description string
 	}{
 		{
-			description: "should set correct outFile and errFile",
+			description: "should set outFile and errFile",
 			outFile:     new(bytes.Buffer),
 			errFile:     new(bytes.Buffer),
 		},
@@ -44,11 +44,11 @@ func TestSetFileStreams(t *testing.T) {
 			SetErrFile(test.errFile)
 
 			if outFile != test.outFile {
-				t.Errorf("failed to set outFile")
+				t.Fatalf("failed to set outFile")
 			}
 
 			if errFile != test.errFile {
-				t.Errorf("failed to set errFile")
+				t.Fatalf("failed to set errFile")
 			}
 		})
 	}
@@ -70,7 +70,7 @@ func TestOutputPrints(t *testing.T) {
 		expected string
 	}{
 		{
-			description: "should correctly print content to stdout with Ln",
+			description: "should print content to stdout with Ln",
 			outFile:     new(bytes.Buffer),
 			errFile:     new(bytes.Buffer),
 			fn:          Ln,
@@ -79,7 +79,7 @@ func TestOutputPrints(t *testing.T) {
 			expected:    "this is a format for content: my-content\n",
 		},
 		{
-			description: "should correctly print content to stdout with Stringf",
+			description: "should print content to stdout with Stringf",
 			outFile:     new(bytes.Buffer),
 			errFile:     new(bytes.Buffer),
 			fn:          Stringf,
@@ -88,7 +88,7 @@ func TestOutputPrints(t *testing.T) {
 			expected:    "this is a format for content: my-content",
 		},
 		{
-			description: "should correctly print content to stdout with ErrLn",
+			description: "should print content to stdout with ErrLn",
 			isStderr:    true,
 			outFile:     new(bytes.Buffer),
 			errFile:     new(bytes.Buffer),
@@ -98,7 +98,7 @@ func TestOutputPrints(t *testing.T) {
 			expected:    "this is a format for content: my-content\n",
 		},
 		{
-			description: "should correctly print content to stdout with Errf",
+			description: "should print content to stdout with Errf",
 			isStderr:    true,
 			outFile:     new(bytes.Buffer),
 			errFile:     new(bytes.Buffer),
@@ -125,7 +125,7 @@ func TestOutputPrints(t *testing.T) {
 				actual = test.outFile.String()
 			}
 			if test.expected != actual {
-				t.Errorf("expected output %s but received %s", test.expected, actual)
+				t.Fatalf("expected output %s but received %s", test.expected, actual)
 			}
 		})
 	}

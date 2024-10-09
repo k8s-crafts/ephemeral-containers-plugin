@@ -36,7 +36,7 @@ func TestNewVersionInfo(t *testing.T) {
 			},
 		},
 		{
-			description: "should return correct version info if set during build",
+			description: "should return version info if set during build",
 			setup: func() {
 				version = "v1.0.0"
 				gitCommitID = "9c474a"
