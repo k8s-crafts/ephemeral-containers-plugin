@@ -17,7 +17,7 @@ package ephemeralcontainers
 import (
 	"errors"
 	"fmt"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/files"
+	"k8s-crafts/ephemeral-containers-plugin/pkg/edit"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 
@@ -47,8 +47,8 @@ var editCmd = &cobra.Command{
 			ExitError(err, 1)
 		}
 
-		editorCmd := files.GetEditorCmd(editor)
-		obj, err := files.EditResource(kubeConfig.ContextOptions, editorCmd, pod, &corev1.Pod{})
+		editorCmd := edit.GetEditorCmd(editor)
+		obj, err := edit.EditResource(kubeConfig.ContextOptions, editorCmd, pod, &corev1.Pod{})
 		if err != nil {
 			ExitError(errors.Join(fmt.Errorf("failed to edit pod/%s", podName), err), 1)
 		}
