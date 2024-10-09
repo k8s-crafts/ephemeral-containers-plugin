@@ -15,14 +15,39 @@
 package main
 
 import (
+	"flag"
 	plugin "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/flags"
 	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"
+
+	"github.com/spf13/pflag"
+	klog "k8s.io/klog/v2"
 )
 
 func main() {
-	flags.SetFlagDefaults()
+	// Add go FlagSet (i.e. from klog) to pflag
+	pflag.CommandLine.ParseErrorsWhitelist.UnknownFlags = true
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+
+	// Resovle ErrHelp: pflag: help requested
+	// ErrHelp is the error when the flag -help is invoked but no such flag is defined.
+	// At this point, it is not yet defined. This works as a placerholder and will be correctly overriden later when cobra is initialized
+	pflag.BoolP("help", "h", false, "")
+
+	pflag.Parse()
+
+	// Override flags if applicable but take user's preferences if any
+	if !pflag.CommandLine.Changed("logtostderr") {
+		if err := pflag.Set("logtostderr", "false"); err != nil {
+			klog.Errorf("Failed to set default flag for logtostderr: %v", err)
+		}
+	}
+
+	if !pflag.CommandLine.Changed("alsologtostderr") {
+		if err := pflag.Set("alsologtostderr", "false"); err != nil {
+			klog.Errorf("Failed to set default flag for alsologtostderr: %v", err)
+		}
+	}
 
 	// Initialize the out and err destinations
 	out.SetOutFile(os.Stdout)
