@@ -59,7 +59,7 @@ func Execute() {
 
 // Log errors and exit non-zero
 func ExitError(err error, exitCode int) {
-	out.Errf("%s", err.Error())
+	out.ErrLn("%s", err.Error())
 	os.Exit(exitCode)
 }
 

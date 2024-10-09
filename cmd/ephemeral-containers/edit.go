@@ -28,7 +28,11 @@ import (
 var editCmd = &cobra.Command{
 	Use:   "edit",
 	Short: "Command to edit the ephemeralContainers spec for a Pod",
-	Long:  "This command is a convenient wrapper that, in turn, uses the pod's ephemeralcontainers subresource",
+	Long: `
+This command is a convenient wrapper that, in turn, uses the pod's ephemeralcontainers subresource.
+
+Note: The command only consider changes to "pod.spec.ephemeralContainers". Other changes are ignored.
+`,
 	// Format: "pod/pod-name", "pod pod-name", "pod-name"
 	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -47,17 +51,24 @@ var editCmd = &cobra.Command{
 			ExitError(err, 1)
 		}
 
-		editorCmd := edit.GetEditorCmd(editor)
-		obj, err := edit.EditResource(kubeConfig.ContextOptions, editorCmd, pod, &corev1.Pod{})
+		editedPod, err := edit.EditResource(kubeConfig.ContextOptions, edit.GetEditorCmd(editor), pod, &corev1.Pod{})
 		if err != nil {
 			ExitError(errors.Join(fmt.Errorf("failed to edit pod/%s", podName), err), 1)
 		}
 
-		if err = k8s.UpdateEphemeralContainersForPod(kubeConfig.ContextOptions, client, obj); err != nil {
+		patch, err := k8s.SanitizeEditedPod(pod, editedPod)
+		if err != nil {
 			ExitError(err, 1)
 		}
 
-		out.Ln("pod/%s successfully edited", podName)
+		if patch != nil {
+			if _, err = k8s.UpdateEphemeralContainersForPod(kubeConfig.ContextOptions, client, patch); err != nil {
+				ExitError(err, 1)
+			}
+			out.Ln("pod/%s successfully edited", podName)
+		} else {
+			out.Ln("Edit cancelled, no changes made for pod/%s", podName)
+		}
 	},
 }
 

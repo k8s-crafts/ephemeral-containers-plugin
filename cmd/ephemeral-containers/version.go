@@ -25,7 +25,9 @@ import (
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Output the plugin version",
-	Long:  "Output the plugin version",
+	Long: `
+Output the plugin version
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		versionInfo := version.NewVersionInfo()
 		output, err := formatter.FormatVersionOutput(outputFormat, versionInfo)

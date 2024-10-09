@@ -26,7 +26,9 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List the Pods with ephemeral containers in the current namespace",
-	Long:  "List the Pods with ephemeral containers in the current namespace",
+	Long: `
+List the Pods with ephemeral containers in the current namespace
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, err := k8s.NewClientset(kubeConfig)
 		if err != nil {

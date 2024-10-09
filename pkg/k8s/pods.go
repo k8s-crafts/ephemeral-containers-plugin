@@ -17,8 +17,10 @@ package k8s
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
+	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -42,9 +44,34 @@ func GetPod(ctx context.Context, client *kubernetes.Clientset, namespace, name s
 }
 
 // Update pod's ephemeralContainer subresource
-func UpdateEphemeralContainersForPod(ctx context.Context, client *kubernetes.Clientset, pod *corev1.Pod) error {
-	_, err := client.CoreV1().Pods(pod.Namespace).UpdateEphemeralContainers(ctx, pod.Name, pod, metav1.UpdateOptions{})
-	return err
+func UpdateEphemeralContainersForPod(ctx context.Context, client *kubernetes.Clientset, pod *corev1.Pod) (*corev1.Pod, error) {
+	return client.CoreV1().Pods(pod.Namespace).UpdateEphemeralContainers(ctx, pod.Name, pod, metav1.UpdateOptions{})
+}
+
+// Validate the pod struct from edited manifests
+func SanitizeEditedPod(original, edited *corev1.Pod) (*corev1.Pod, error) {
+	if !cmp.Equal(original.Name, edited.Name) {
+		return nil, fmt.Errorf("pod's name cannot be changed. Expected %s but got %s", original.Name, edited.Name)
+	}
+
+	if !cmp.Equal(original.Namespace, edited.Namespace) {
+		return nil, fmt.Errorf("pod's namespace cannot be changed. Expected %s but got %s", original.Namespace, edited.Namespace)
+	}
+
+	// Nothing changes in spec.ephemeralContainers
+	if cmp.Equal(original.Spec.EphemeralContainers, edited.Spec.EphemeralContainers) {
+		return nil, nil
+	}
+
+	return &corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      original.Name,
+			Namespace: original.Namespace,
+		},
+		Spec: corev1.PodSpec{
+			EphemeralContainers: edited.Spec.DeepCopy().EphemeralContainers,
+		},
+	}, nil
 }
 
 // Apply filters (if any) to a list of pods
