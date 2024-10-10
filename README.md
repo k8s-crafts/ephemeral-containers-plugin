@@ -1,5 +1,11 @@
 # kubectl ephemeral-containers
 
+![Release](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square&label=Release)
+![Go version](https://img.shields.io/github/go-mod/go-version/k8s-crafts/ephemeral-containers-plugin?style=flat-square)
+[![Lint](https://img.shields.io/github/actions/workflow/status/k8s-crafts/ephemeral-containers-plugin/lint.yaml?style=flat-square&logo=github&label=Lint)](https://github.com/k8s-crafts/ephemeral-containers-plugin/actions/workflows/lint.yaml)
+[![Test](https://img.shields.io/github/actions/workflow/status/k8s-crafts/ephemeral-containers-plugin/test.yaml?style=flat-square&logo=github&label=Test)
+](https://github.com/k8s-crafts/ephemeral-containers-plugin/actions/workflows/test.yaml)
+
 A `kubectl` plugin for directly modifying Pods' [`ephemeralContainers` spec](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.31/#ephemeralcontainer-v1-core).
 
 
