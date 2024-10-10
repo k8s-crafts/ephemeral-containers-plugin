@@ -22,7 +22,11 @@ This project is a plugin (i.e. an extension) to `kubectl` that allows such direc
 
 ## Installation
 
-### Build from source
+### From releases
+
+Download the binary from the [release page](https://github.com/k8s-crafts/ephemeral-containers-plugin/releases) and copy it to a directory on `PATH`.
+
+### From source
 
 ```bash
 git clone git@github.com:k8s-crafts/ephemeral-containers-plugin.git
