@@ -8,7 +8,7 @@ GOARCH ?= $(shell go env GOARCH)
 MODULE := k8s-crafts/ephemeral-containers-plugin
 
 ## Tool version. Bump for each release
-VERSION ?= 0.1.0-dev
+VERSION ?= 0.1.0
 
 # Git Commit ID
 GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
