@@ -16,10 +16,11 @@ package ephemeralcontainers
 
 import (
 	"fmt"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"
+
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"

@@ -1,4 +1,4 @@
-module k8s-crafts/ephemeral-containers-plugin
+module github.com/k8s-crafts/ephemeral-containers-plugin
 
 toolchain go1.22.4
 

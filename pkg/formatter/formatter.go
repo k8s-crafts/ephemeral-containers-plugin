@@ -18,8 +18,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/version"
 	"strings"
+
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version"
 
 	"github.com/olekukonko/tablewriter"
 	corev1 "k8s.io/api/core/v1"

@@ -16,9 +16,10 @@ package main
 
 import (
 	"flag"
-	plugin "k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"os"
+
+	plugin "github.com/k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 
 	"github.com/spf13/pflag"
 	klog "k8s.io/klog/v2"

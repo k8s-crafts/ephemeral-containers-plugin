@@ -17,9 +17,10 @@ package ephemeralcontainers
 import (
 	"errors"
 	"fmt"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/edit"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
+
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/edit"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"

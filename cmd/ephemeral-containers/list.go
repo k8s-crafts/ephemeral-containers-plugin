@@ -15,9 +15,9 @@
 package ephemeralcontainers
 
 import (
-	"k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/out"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"

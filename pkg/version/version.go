@@ -15,10 +15,10 @@
 package version
 
 var (
-	// When built, set flag -ldflag="-X k8s-crafts/ephemeral-containers-plugin/pkg/version.version=vX.Y.Z"
+	// When built, set flag -ldflag="-X github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version.version=vX.Y.Z"
 	version string = "v0.0.0-unset"
 
-	// When built, set flag -ldflag="-X k8s-crafts/ephemeral-containers-plugin/pkg/version.gitCommitID=<commit-id>"
+	// When built, set flag -ldflag="-X github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version.gitCommitID=<commit-id>"
 	gitCommitID string = ""
 )
 

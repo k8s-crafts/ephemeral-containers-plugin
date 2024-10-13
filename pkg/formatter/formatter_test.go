@@ -16,9 +16,10 @@ package formatter
 
 import (
 	"fmt"
-	"k8s-crafts/ephemeral-containers-plugin/pkg/version"
 	"strings"
 	"testing"
+
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
