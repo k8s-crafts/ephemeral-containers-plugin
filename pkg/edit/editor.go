@@ -28,11 +28,11 @@ const (
 	DEFAULT_EDITOR   string = "vi"
 	ENV_EDITOR       string = "EDITOR"
 	ENV_KUBE_EDITOR  string = "KUBE_EDITOR"
-	TMP_FILE_PATTERN string = "ephemeral-containers-"
+	TMP_FILE_PATTERN string = "ephemeral-containers-*.yaml"
 )
 
 // Edit a k8s resource and return the updated one
-func EditResource[r runtime.Object](ctx context.Context, editor string, obj r, result r) (_ r, err error) {
+func EditResource[r runtime.Object](ctx context.Context, editor string, obj r, result r) (r, error) {
 	f, err := os.CreateTemp(os.TempDir(), TMP_FILE_PATTERN)
 	if err != nil {
 		return result, err

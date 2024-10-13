@@ -40,12 +40,23 @@ func ListPods(ctx context.Context, client *kubernetes.Clientset, namespace strin
 
 // Get pod by name in a specific namespace
 func GetPod(ctx context.Context, client *kubernetes.Clientset, namespace, name string) (*corev1.Pod, error) {
-	return client.CoreV1().Pods(namespace).Get(ctx, name, metav1.GetOptions{})
+	pod, err := client.CoreV1().Pods(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return setGVK(pod), nil
 }
 
 // Update pod's ephemeralContainer subresource
 func UpdateEphemeralContainersForPod(ctx context.Context, client *kubernetes.Clientset, pod *corev1.Pod) (*corev1.Pod, error) {
 	return client.CoreV1().Pods(pod.Namespace).UpdateEphemeralContainers(ctx, pod.Name, pod, metav1.UpdateOptions{})
+}
+
+// Explicitly set GVK for Pod
+func setGVK(pod *corev1.Pod) *corev1.Pod {
+	gvk := pod.GroupVersionKind()
+	pod.SetGroupVersionKind(gvk)
+	return pod
 }
 
 // Validate the pod struct from edited manifests
@@ -72,6 +83,18 @@ func SanitizeEditedPod(original, edited *corev1.Pod) (*corev1.Pod, error) {
 			EphemeralContainers: edited.Spec.DeepCopy().EphemeralContainers,
 		},
 	}, nil
+}
+
+func MinifyPod(pod *corev1.Pod) *corev1.Pod {
+	return &corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      pod.Name,
+			Namespace: pod.Namespace,
+		},
+		Spec: corev1.PodSpec{
+			EphemeralContainers: pod.Spec.DeepCopy().EphemeralContainers,
+		},
+	}
 }
 
 // Apply filters (if any) to a list of pods

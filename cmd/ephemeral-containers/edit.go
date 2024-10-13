@@ -52,6 +52,10 @@ Note: The command only consider changes to "pod.spec.ephemeralContainers". Other
 			ExitError(err, 1)
 		}
 
+		if minify {
+			pod = k8s.MinifyPod(pod)
+		}
+
 		editedPod, err := edit.EditResource(kubeConfig.ContextOptions, edit.GetEditorCmd(editor), pod, &corev1.Pod{})
 		if err != nil {
 			ExitError(errors.Join(fmt.Errorf("failed to edit pod/%s", podName), err), 1)
@@ -76,11 +80,15 @@ Note: The command only consider changes to "pod.spec.ephemeralContainers". Other
 var (
 	editor      string
 	editorUsage string = "Editor to use. If unset, the plugin will look into environment variable KUBE_EDITOR, EDITOR or fall back to vim"
+
+	minify      bool
+	minifyUsage string = "If true, remove information not necessary for editting ephemeral containers. Default to false"
 )
 
 func init() {
 	// Set default to empty to allow search in env vars
 	editCmd.Flags().StringVarP(&editor, "editor", "e", "", editorUsage)
+	editCmd.Flags().BoolVarP(&minify, "minify", "", false, minifyUsage)
 
 	rootCmd.AddCommand(editCmd)
 }
