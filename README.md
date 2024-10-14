@@ -19,11 +19,26 @@ This project is a plugin (i.e. an extension) to `kubectl` that allows such direc
 
 ## Installation
 
-### From releases
+### From released binaries
 
 Download the binary from the [release page](https://github.com/k8s-crafts/ephemeral-containers-plugin/releases) and copy it to a directory on `PATH`.
 
 ### From source
+
+In addition to released binaries, you can install the plugin from source.
+
+#### With `go install`
+
+```bash
+go install github.com/k8s-crafts/ephemeral-containers-plugin@v0.2.0
+```
+
+Note that there are some limitations to this method:
+
+- The binary must be renamed to `kubectl-ephemeral_containers` to register the plugin with `kubectl`.
+- The command `kubectl ephemeral-containers version` will output empty version information (i.e. due to missing `-ldflags` when building).
+
+#### With source repository
 
 ```bash
 git clone git@github.com:k8s-crafts/ephemeral-containers-plugin.git
@@ -31,8 +46,6 @@ cd ephemeral-containers-plugin
 # Build the plugin and install it on PATH
 # Default to $HOME/bin
 make build install
-# Checking plugin version
-kubectl ephemeral-containers version
 ```
 
 ## User Guides
@@ -43,6 +56,12 @@ The plugin supports the subcommand `edit` to interactively edit the `.spec.ephem
 
 ```bash
 $ kubectl ephemeral-containers edit pod/ephemeral-demo
+```
+
+You can optionally set `--minify` flag to allow focus mode (i.e. unnecessary fields are trimmed when opened in editor).
+
+```bash
+$ kubectl ephemeral-containers edit --minify pod/ephemeral-demo
 ```
 
 ### List pods with ephemeral containers
