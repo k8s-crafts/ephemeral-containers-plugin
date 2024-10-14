@@ -19,6 +19,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "^1.22.0"
+      - name: Compute previous tag
+        id: previous-tag
+        run: |
+          echo "tag=$(git tag -l | sort -V | grep -B1 ${{ github.ref_name }} | head -n1)" >> "$GITHUB_OUTPUT"
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -27,3 +31,4 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_PREVIOUS_TAG: ${{ steps.previous-tag.outputs.tag }}
