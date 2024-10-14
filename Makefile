@@ -5,7 +5,6 @@ SHELL := /usr/bin/env bash -o pipefail
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 
-MODULE := github.com/k8s-crafts/ephemeral-containers-plugin
 
 ## Tool version. Bump for each release
 VERSION ?= 1.0.0-dev
@@ -14,8 +13,8 @@ VERSION ?= 1.0.0-dev
 GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
 GIT_COMMIT_ID := $(if $(shell git status --porcelain --untracked-files=no),$(GIT_COMMIT_NO)-dirty,$(GIT_COMMIT_NO))
 
-## Build flags
-PLUGIN_LDFLAGS := -X $(MODULE)/pkg/version.version=v$(VERSION) -X $(MODULE)/pkg/version.gitCommitID=$(GIT_COMMIT_ID)
+export PLUGIN_VERSION=v$(VERSION)
+export PLUGIN_GIT_COMMIT_ID=$(GIT_COMMIT_ID)
 
 ##@ General
 
@@ -59,13 +58,16 @@ $(GO_LICENSE): local-bin
 
 ##@ Build
 
+.PHONY: generate
+generate: vet fmt ## Generate go codes
+	go generate ./...
+
 BUILD_DIR ?= $(shell pwd)/build
 
 .PHONY: build
 build: vet fmt ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
 	mkdir -p $(BUILD_DIR)
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
-		-ldflags="$(PLUGIN_LDFLAGS)" \
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \
 		main.go
 

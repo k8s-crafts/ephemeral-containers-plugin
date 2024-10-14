@@ -14,13 +14,7 @@
 
 package version
 
-var (
-	// When built, set flag -ldflag="-X github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version.version=vX.Y.Z"
-	version string = "v0.0.0-unset"
-
-	// When built, set flag -ldflag="-X github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version.gitCommitID=<commit-id>"
-	gitCommitID string = ""
-)
+//go:generate go run ../../tools/version_generator.go
 
 type VersionInfo struct {
 	Version     string `json:"version,omitempty"`
