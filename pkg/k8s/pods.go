@@ -23,6 +23,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -53,8 +54,13 @@ func UpdateEphemeralContainersForPod(ctx context.Context, client *kubernetes.Cli
 }
 
 // Explicitly set GVK for Pod
+// See: https://github.com/kubernetes/kubernetes/issues/80609
 func setGVK(pod *corev1.Pod) *corev1.Pod {
-	gvk := pod.GroupVersionKind()
+	gvk := schema.GroupVersionKind{
+		Kind:    "Pod",
+		Version: "v1",
+		Group:   "",
+	}
 	pod.SetGroupVersionKind(gvk)
 	return pod
 }
@@ -86,7 +92,7 @@ func SanitizeEditedPod(original, edited *corev1.Pod) (*corev1.Pod, error) {
 }
 
 func MinifyPod(pod *corev1.Pod) *corev1.Pod {
-	return &corev1.Pod{
+	result := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      pod.Name,
 			Namespace: pod.Namespace,
@@ -95,6 +101,8 @@ func MinifyPod(pod *corev1.Pod) *corev1.Pod {
 			EphemeralContainers: pod.Spec.DeepCopy().EphemeralContainers,
 		},
 	}
+
+	return setGVK(result)
 }
 
 // Apply filters (if any) to a list of pods
