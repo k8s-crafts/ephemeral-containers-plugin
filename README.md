@@ -30,7 +30,7 @@ In addition to released binaries, you can install the plugin from source.
 #### With `go install`
 
 ```bash
-go install github.com/k8s-crafts/ephemeral-containers-plugin@v0.2.0
+go install github.com/k8s-crafts/ephemeral-containers-plugin@latest
 ```
 
 **Note**: The binary will be installed under `GOBIN` (i.e. `go env GOBIN`) as `ephemeral-containers-plugin`. It must be renamed to `kubectl-ephemeral_containers` to register the plugin with `kubectl`.
