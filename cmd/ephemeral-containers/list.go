@@ -18,7 +18,6 @@ import (
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
-
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -35,12 +34,26 @@ List the Pods with ephemeral containers in the current namespace
 			ExitError(err, 1)
 		}
 
-		pods, err := k8s.ListPods(kubeConfig.ContextOptions, client, *kubeConfig.Namespace, filterFn)
-		if err != nil {
-			ExitError(err, 1)
+		namespaces := []string{*kubeConfig.Namespace}
+		if allNamespace {
+			availableNs, err := k8s.ListNamespaces(kubeConfig.ContextOptions, client)
+			if err != nil {
+				ExitError(err, 1)
+			}
+			namespaces = k8s.GetNamespaceNames(availableNs)
 		}
 
-		resourceData := formatter.ConvertPodsToResourceData(pods)
+		var result []corev1.Pod
+
+		for _, ns := range namespaces {
+			pods, err := k8s.ListPods(kubeConfig.ContextOptions, client, ns, filterFn)
+			if err != nil {
+				ExitError(err, 1)
+			}
+			result = append(result, pods...)
+		}
+
+		resourceData := formatter.ConvertPodsToResourceData(result)
 		output, err := formatter.FormatListOutput(outputFormat, resourceData)
 		if err != nil {
 			ExitError(err, 1)
@@ -48,6 +61,8 @@ List the Pods with ephemeral containers in the current namespace
 
 		if len(output) > 0 {
 			out.Ln("%v", output)
+		} else if allNamespace {
+			out.Ln("No pods with ephemeral containers found any namespaces")
 		} else {
 			out.Ln("No pods with ephemeral containers found in namespace %s", *kubeConfig.Namespace)
 		}
@@ -59,8 +74,13 @@ var (
 	filterFn = func(pod corev1.Pod) bool {
 		return len(pod.Spec.EphemeralContainers) > 0
 	}
+
+	allNamespace      bool
+	allNamespaceUsage = "If true, list the pods in all namespaces"
 )
 
 func init() {
+	listCmd.Flags().BoolVarP(&allNamespace, "all-namespaces", "A", false, allNamespaceUsage)
+
 	rootCmd.AddCommand(listCmd)
 }

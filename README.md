@@ -1,6 +1,6 @@
 # kubectl ephemeral-containers
 
-![Release](https://img.shields.io/badge/Version-v0.2.0-informational?style=flat-square&label=Release)
+![Release](https://img.shields.io/badge/Version-v1.0.0-informational?style=flat-square&label=Release)
 ![Go version](https://img.shields.io/github/go-mod/go-version/k8s-crafts/ephemeral-containers-plugin?style=flat-square)
 [![Lint](https://img.shields.io/github/actions/workflow/status/k8s-crafts/ephemeral-containers-plugin/lint.yaml?style=flat-square&logo=github&label=Lint)](https://github.com/k8s-crafts/ephemeral-containers-plugin/actions/workflows/lint.yaml)
 [![Test](https://img.shields.io/github/actions/workflow/status/k8s-crafts/ephemeral-containers-plugin/test.yaml?style=flat-square&logo=github&label=Test)
@@ -33,10 +33,7 @@ In addition to released binaries, you can install the plugin from source.
 go install github.com/k8s-crafts/ephemeral-containers-plugin@v0.2.0
 ```
 
-Note that there are some limitations to this method:
-
-- The binary must be renamed to `kubectl-ephemeral_containers` to register the plugin with `kubectl`.
-- The command `kubectl ephemeral-containers version` will output empty version information (i.e. due to missing `-ldflags` when building).
+**Note**: The binary will be installed under `GOBIN` (i.e. `go env GOBIN`) as `ephemeral-containers-plugin`. It must be renamed to `kubectl-ephemeral_containers` to register the plugin with `kubectl`.
 
 #### With source repository
 
@@ -66,7 +63,7 @@ $ kubectl ephemeral-containers edit --minify pod/ephemeral-demo
 
 ### List pods with ephemeral containers
 
-The plugin supports the subcommand `list` to list all pods with configured ephemeral containers in the current namespace.
+The plugin supports the subcommand `list` to list all pods with configured ephemeral containers in the current namespace. You can specify flag `--all-namespaces` (i.e. `-A`) to include all namespaces.
 
 By default, the output is rendered as a table. You can overwrite it with `--output <format>` (i.e. `-o`) flag.
 

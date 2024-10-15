@@ -21,7 +21,6 @@ import (
 	"strings"
 
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version"
-
 	"github.com/olekukonko/tablewriter"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
@@ -40,7 +39,7 @@ var (
 type ResourceData struct {
 	Name                string   `json:"name,omitempty"`
 	Namespace           string   `json:"namespace,omitempty"`
-	EphemeralContainers []string `json:"ephemeralContainers,omitempty"`
+	EphemeralContainers []string `json:"ephemeralContainers"`
 }
 
 // List the name of ehemeral containers for a Pod

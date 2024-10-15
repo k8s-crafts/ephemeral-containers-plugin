@@ -18,7 +18,6 @@ import (
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/formatter"
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version"
-
 	"github.com/spf13/cobra"
 )
 

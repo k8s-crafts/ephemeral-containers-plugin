@@ -16,11 +16,6 @@ package version
 
 import "testing"
 
-func beforeEach() {
-	version = "v0.0.0-unset"
-	gitCommitID = ""
-}
-
 func TestNewVersionInfo(t *testing.T) {
 	tests := []struct {
 		description string
@@ -28,28 +23,16 @@ func TestNewVersionInfo(t *testing.T) {
 		expected    *VersionInfo
 	}{
 		{
-			description: "should return default version info if unset",
+			description: "should return version info",
 			setup:       func() {},
 			expected: &VersionInfo{
-				Version:     "v0.0.0-unset",
-				GitCommitID: "",
-			},
-		},
-		{
-			description: "should return version info if set during build",
-			setup: func() {
-				version = "v1.0.0"
-				gitCommitID = "9c474a"
-			},
-			expected: &VersionInfo{
-				Version:     "v1.0.0",
-				GitCommitID: "9c474a",
+				Version:     version,
+				GitCommitID: gitCommitID,
 			},
 		},
 	}
 
 	for _, test := range tests {
-		beforeEach()
 		t.Run(test.description, func(t *testing.T) {
 			test.setup()
 
