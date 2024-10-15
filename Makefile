@@ -10,11 +10,11 @@ GOARCH ?= $(shell go env GOARCH)
 VERSION ?= 1.0.0-dev
 
 # Git Commit ID
-GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
-GIT_COMMIT_ID := $(if $(shell git status --porcelain --untracked-files=no),$(GIT_COMMIT_NO)-dirty,$(GIT_COMMIT_NO))
+# GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
+# GIT_COMMIT_ID := $(if $(shell git status --porcelain --untracked-files=no),$(GIT_COMMIT_NO)-dirty,$(GIT_COMMIT_NO))
 
 export PLUGIN_VERSION=v$(VERSION)
-export PLUGIN_GIT_COMMIT_ID=$(GIT_COMMIT_ID)
+# export PLUGIN_GIT_COMMIT_ID=$(GIT_COMMIT_ID)
 
 ##@ General
 

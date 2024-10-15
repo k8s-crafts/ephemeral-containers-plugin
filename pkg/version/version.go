@@ -17,13 +17,11 @@ package version
 //go:generate go run ../../tools/version_generator.go
 
 type VersionInfo struct {
-	Version     string `json:"version,omitempty"`
-	GitCommitID string `json:"gitCommitID,omitempty"`
+	Version string `json:"version,omitempty"`
 }
 
 func NewVersionInfo() *VersionInfo {
 	return &VersionInfo{
-		Version:     version,
-		GitCommitID: gitCommitID,
+		Version: version,
 	}
 }

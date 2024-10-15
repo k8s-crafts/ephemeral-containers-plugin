@@ -23,15 +23,13 @@ import (
 )
 
 const (
-	fileName          = "version_generated.go"
-	ENV_VERSION       = "PLUGIN_VERSION"
-	ENV_GIT_COMMIT_ID = "PLUGIN_GIT_COMMIT_ID"
+	fileName    = "version_generated.go"
+	ENV_VERSION = "PLUGIN_VERSION"
 )
 
 func main() {
 	values := version.VersionInfo{
-		Version:     GetFromEnVar(ENV_VERSION, "v0.0.0-unknown"),
-		GitCommitID: GetFromEnVar(ENV_GIT_COMMIT_ID, "unknown"),
+		Version: GetFromEnVar(ENV_VERSION, "v0.0.0-unknown"),
 	}
 
 	f, err := os.Create(fileName)
@@ -59,8 +57,5 @@ package version
 const (
 	// Version of the plugin
 	version string = "{{ .Version }}"
-
-	// The commit hash for the tagged version of the plugin
-	gitCommitID string = "{{ .GitCommitID }}"
 )
 `))

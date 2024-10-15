@@ -284,17 +284,15 @@ func TestFormatVersionOutput(t *testing.T) {
 		{
 			description: "should return the version output in table format",
 			version: &version.VersionInfo{
-				Version:     "v0.0.0-unset",
-				GitCommitID: "",
+				Version: "v0.0.0-unset",
 			},
 			format:   "table",
-			expected: "version: v0.0.0-unset\ngitCommitID: ",
+			expected: "version: v0.0.0-unset\n",
 		},
 		{
 			description: "should return the version output in JSON format",
 			version: &version.VersionInfo{
-				Version:     "v0.0.0-unset",
-				GitCommitID: "",
+				Version: "v0.0.0-unset",
 			},
 			format: "json",
 			expected: `{
@@ -304,8 +302,7 @@ func TestFormatVersionOutput(t *testing.T) {
 		{
 			description: "should return the version output in YAML format",
 			version: &version.VersionInfo{
-				Version:     "v0.0.0-unset",
-				GitCommitID: "",
+				Version: "v0.0.0-unset",
 			},
 			format:   "yaml",
 			expected: "version: v0.0.0-unset\n",

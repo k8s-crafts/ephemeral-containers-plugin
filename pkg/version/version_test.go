@@ -26,8 +26,7 @@ func TestNewVersionInfo(t *testing.T) {
 			description: "should return version info",
 			setup:       func() {},
 			expected: &VersionInfo{
-				Version:     version,
-				GitCommitID: gitCommitID,
+				Version: version,
 			},
 		},
 	}
@@ -38,7 +37,7 @@ func TestNewVersionInfo(t *testing.T) {
 
 			actual := NewVersionInfo()
 			expected := test.expected
-			if actual == nil || actual.Version != expected.Version || actual.GitCommitID != expected.GitCommitID {
+			if actual == nil || actual.Version != expected.Version {
 				t.Fatalf("expected versionInfo %+v but received %+v", expected, actual)
 			}
 		})
