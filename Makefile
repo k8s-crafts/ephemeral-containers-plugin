@@ -59,13 +59,13 @@ $(GO_LICENSE): local-bin
 ##@ Build
 
 .PHONY: generate
-generate: vet fmt ## Generate go codes
+generate: ## Generate go codes
 	go generate ./...
 
 BUILD_DIR ?= $(shell pwd)/build
 
 .PHONY: build
-build: vet fmt ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
+build: generate vet fmt ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
 	mkdir -p $(BUILD_DIR)
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \

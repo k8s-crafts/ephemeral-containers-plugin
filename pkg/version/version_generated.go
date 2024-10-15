@@ -6,5 +6,5 @@ const (
 	version string = "v1.0.0-dev"
 
 	// The commit hash for the tagged version of the plugin
-	gitCommitID string = "e4acee0095aae8aff315283cbe894f8466e5c21e-dirty"
+	gitCommitID string = "6ba5384b1260dc3324eaaf21d147688c7124e54b-dirty"
 )
