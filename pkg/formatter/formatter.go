@@ -21,7 +21,6 @@ import (
 	"strings"
 
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version"
-
 	"github.com/olekukonko/tablewriter"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"

@@ -30,6 +30,14 @@ fmt: add-license ## Run go fmt against source files.
 vet: ## Run go vet against source files.
 	go vet ./...
 
+.PHONY: lint
+lint: ## Run lint checks with golangci-lint
+	golangci-lint run ./...
+
+.PHONY: lint-fix
+lint-fix: ## Apply lint fixes with golangci-lint
+	golangci-lint run --fix ./...
+
 .PHONY: test
 test: vet fmt ## Run go tests.
 	go test -v -cover -coverpkg=./... -coverprofile cover.out  ./...
