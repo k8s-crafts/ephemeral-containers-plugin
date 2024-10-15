@@ -22,9 +22,6 @@ builds:
     goarch:
       - amd64
       - arm64
-    ldflags:
-      - -X github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version.version=v{{.Version}}
-      - -X github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version.gitCommitID={{.FullCommit}}
 
 archives:
   - format: tar.gz
