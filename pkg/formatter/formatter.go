@@ -40,7 +40,7 @@ var (
 type ResourceData struct {
 	Name                string   `json:"name,omitempty"`
 	Namespace           string   `json:"namespace,omitempty"`
-	EphemeralContainers []string `json:"ephemeralContainers,omitempty"`
+	EphemeralContainers []string `json:"ephemeralContainers"`
 }
 
 // List the name of ehemeral containers for a Pod
