@@ -99,7 +99,6 @@ func TestGetEditorCmd(t *testing.T) {
 	}
 
 	for _, test := range tests {
-
 		t.Run(test.desciptions, func(t *testing.T) {
 			setupEnv(t, test.envs)
 
@@ -110,6 +109,5 @@ func TestGetEditorCmd(t *testing.T) {
 
 			}
 		})
-
 	}
 }
