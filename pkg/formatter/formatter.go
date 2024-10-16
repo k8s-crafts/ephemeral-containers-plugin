@@ -111,6 +111,6 @@ func FormatVersionOutput(format string, version *version.VersionInfo) (string, e
 		yamlOut, err := yaml.Marshal(version)
 		return string(yamlOut), err
 	default:
-		return fmt.Sprintf("version: %v\n", version.Version), nil
+		return fmt.Sprintf("version: %v", version.Version), nil
 	}
 }

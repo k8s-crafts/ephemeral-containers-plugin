@@ -287,7 +287,7 @@ func TestFormatVersionOutput(t *testing.T) {
 				Version: "v0.0.0-unset",
 			},
 			format:   "table",
-			expected: "version: v0.0.0-unset\n",
+			expected: "version: v0.0.0-unset",
 		},
 		{
 			description: "should return the version output in JSON format",
