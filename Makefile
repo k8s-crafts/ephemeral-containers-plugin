@@ -7,7 +7,7 @@ GOARCH ?= $(shell go env GOARCH)
 
 
 ## Tool version. Bump for each release
-VERSION ?= 1.1.0-dev
+VERSION ?= 1.2.0-dev
 
 # Git Commit ID
 # GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
