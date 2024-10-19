@@ -32,11 +32,11 @@ vet: ## Run go vet against source files.
 
 .PHONY: lint
 lint: ## Run lint checks with golangci-lint
-	golangci-lint run ./...
+	$(GOLANGCI_LINT) run ./...
 
 .PHONY: lint-fix
 lint-fix: ## Apply lint fixes with golangci-lint
-	golangci-lint run --fix ./...
+	$(GOLANGCI_LINT) run --fix ./...
 
 .PHONY: test
 test: vet fmt ## Run go tests.
@@ -63,6 +63,12 @@ PHONY: go-license
 go-license: $(GO_LICENSE) ## Install go-license.
 $(GO_LICENSE): local-bin
 	test -s $(GO_LICENSE) || GOBIN=$(LOCAL_BIN) go install github.com/palantir/go-license@v1.39.0
+
+GOLANGCI_LINT ?= $(LOCAL_BIN)/golangci-lint
+.PHONY: golangci-lint
+golangci-lint: $(GOLANGCI_LINT) # Install golangci-lint.
+$(GOLANGCI_LINT): local-bin
+	test -s $(GOLANGCI_LINT) || GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
 
 ##@ Build
 
