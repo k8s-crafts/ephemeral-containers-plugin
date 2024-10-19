@@ -1,6 +1,6 @@
 ## User Guides
 
-To use the plugin (i.e. with `kubectl`), you must install it with one of the [supported methods](../README.md#installation).
+To use the plugin (i.e. with `kubectl`/`oc`), you must install it with one of the [supported methods](../README.md#installation).
 
 ### Interactively add ephemeral containers to pods
 

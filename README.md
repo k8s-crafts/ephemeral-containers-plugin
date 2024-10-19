@@ -15,7 +15,7 @@ This project is a plugin (i.e. an extension) to `kubectl` that allows such direc
 ## Requirements
 
 - Kubernetes `>= v1.25.0-0`
-- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) or [oc](https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html)
 
 ## Installation
 
