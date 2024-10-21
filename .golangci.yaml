@@ -1,4 +1,6 @@
 linters:
+  run:
+    timeout: 5m
   enable:
     - errcheck
     - gosimple
