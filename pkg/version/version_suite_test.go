@@ -15,19 +15,13 @@
 package version_test
 
 import (
-	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version"
+	"testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Version", func() {
-	Context("when querying", func() {
-		It("should return version information", func() {
-			actual := version.NewVersionInfo()
-
-			Expect(actual).ToNot(BeNil())
-			// NOTE: Bump version for release
-			Expect(actual.Version).To(Equal("v1.2.0-dev"))
-		})
-	})
-})
+func TestVersion(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Version Suite")
+}

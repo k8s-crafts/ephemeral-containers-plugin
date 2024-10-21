@@ -12,22 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package version_test
+package formatter_test
 
 import (
-	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/version"
+	"testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Version", func() {
-	Context("when querying", func() {
-		It("should return version information", func() {
-			actual := version.NewVersionInfo()
-
-			Expect(actual).ToNot(BeNil())
-			// NOTE: Bump version for release
-			Expect(actual.Version).To(Equal("v1.2.0-dev"))
-		})
-	})
-})
+func TestFormatter(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Formatter Suite")
+}

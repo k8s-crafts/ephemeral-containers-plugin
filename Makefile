@@ -45,7 +45,7 @@ lint-fix: ## Apply lint fixes with golangci-lint
 
 .PHONY: test
 test: vet fmt ## Run go tests.
-	go test -v -cover -coverpkg=./... -coverprofile cover.out  ./...
+	$(GINKGO) -v -cover -output-dir=. -coverprofile cover.out  ./...
 
 .PHONY: add-license
 add-license: go-license ## Add license header to source files.
