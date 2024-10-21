@@ -20,6 +20,7 @@ We appreciate all contributions, whether they involve a large feature, a bug fix
 - Open a new GitHub pull request with the patch.
 
 - Ensure the PR description clearly describes the problem and solution. Include the relevant issue number in PR description if applicable (e.g. `Fixes #100`, `Related to #101`).
+- **All commmits must be signed. See [references](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) for more details.**
 
 - The maintainers will get to your as soon as possible.
 
