@@ -44,7 +44,7 @@ lint-fix: ## Apply lint fixes with golangci-lint
 	$(GOLANGCI_LINT) run --fix ./...
 
 .PHONY: test
-test: vet fmt ## Run go tests.
+test: vet fmt ginkgo ## Run go tests.
 	$(GINKGO) -v -cover -output-dir=. -coverprofile cover.out  ./...
 
 .PHONY: add-license
