@@ -34,9 +34,19 @@ func SetOutFile(file io.Writer) {
 	outFile = file
 }
 
+// Get outFile
+func GetOutFile() io.Writer {
+	return outFile
+}
+
 // Set errFile to an io.Writer
 func SetErrFile(file io.Writer) {
 	errFile = file
+}
+
+// Get errFile
+func GetErrFile() io.Writer {
+	return errFile
 }
 
 // Write a formatted string with a newline to stdout

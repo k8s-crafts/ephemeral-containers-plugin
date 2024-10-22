@@ -53,8 +53,7 @@ List the Pods with ephemeral containers in the current namespace
 			result = append(result, pods...)
 		}
 
-		resourceData := formatter.ConvertPodsToResourceData(result)
-		output, err := formatter.FormatListOutput(outputFormat, resourceData)
+		output, err := formatter.FormatListOutput(outputFormat, result)
 		if err != nil {
 			ExitError(err, 1)
 		}

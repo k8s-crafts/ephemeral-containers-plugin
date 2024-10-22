@@ -68,7 +68,8 @@ func GetTableRow(data ResourceData) []string {
 }
 
 // Formatter for list output
-func FormatListOutput(format string, data []ResourceData) (string, error) {
+func FormatListOutput(format string, pods []corev1.Pod) (string, error) {
+	data := ConvertPodsToResourceData(pods)
 	if len(data) == 0 {
 		return "", nil
 	}

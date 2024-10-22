@@ -6,8 +6,13 @@ GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 
 
-## Tool version. Bump for each release
+## Plugin version. Bump for each release
 VERSION ?= 1.2.0-dev
+
+## Tool versions
+GO_LICENSE_VERSION ?= 1.39.0
+GOLANGCI_LINT_VERSION ?= 1.61.0
+GINKGO_VERSION ?= 2.20.2 # Using ginkgo v2
 
 # Git Commit ID
 # GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
@@ -39,8 +44,8 @@ lint-fix: ## Apply lint fixes with golangci-lint
 	$(GOLANGCI_LINT) run --fix ./...
 
 .PHONY: test
-test: vet fmt ## Run go tests.
-	go test -v -cover -coverpkg=./... -coverprofile cover.out  ./...
+test: vet fmt ginkgo ## Run go tests.
+	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out  ./...
 
 .PHONY: add-license
 add-license: go-license ## Add license header to source files.
@@ -62,13 +67,20 @@ GO_LICENSE ?= $(LOCAL_BIN)/go-license
 PHONY: go-license
 go-license: $(GO_LICENSE) ## Install go-license.
 $(GO_LICENSE): local-bin
-	test -s $(GO_LICENSE) || GOBIN=$(LOCAL_BIN) go install github.com/palantir/go-license@v1.39.0
+	test -s $(GO_LICENSE) || GOBIN=$(LOCAL_BIN) go install github.com/palantir/go-license@v$(GO_LICENSE_VERSION)
 
 GOLANGCI_LINT ?= $(LOCAL_BIN)/golangci-lint
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) # Install golangci-lint.
 $(GOLANGCI_LINT): local-bin
-	test -s $(GOLANGCI_LINT) || GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
+	test -s $(GOLANGCI_LINT) || GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v$(GOLANGCI_LINT_VERSION)
+
+
+GINKGO ?= $(LOCAL_BIN)/ginkgo
+.PHONY: ginkgo
+ginkgo: $(GINKGO) ## Install ginkgo.
+$(GINKGO): $(LOCAL_BIN)
+	test -s $(GINKGO) || GOBIN=$(LOCAL_BIN) go install github.com/onsi/ginkgo/v2/ginkgo@v$(GINKGO_VERSION)
 
 ##@ Build
 

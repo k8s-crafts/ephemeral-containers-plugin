@@ -12,121 +12,90 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package out
+package out_test
 
 import (
 	"bytes"
-	"testing"
+
+	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-func beforeEach() {
-	outFile = nil
-	errFile = nil
+var _ = Describe("Out", func() {
+	var t *test
+
+	BeforeEach(func() {
+		t = newTest()
+	})
+
+	Context("when printing contents", func() {
+		JustBeforeEach(func() {
+			out.SetOutFile(t.f)
+		})
+
+		Context("to outFile", func() {
+			It("should set outFile", func() {
+				Expect(out.GetOutFile()).To(Equal(t.f))
+			})
+			It("should print content with newline", func() {
+				out.Ln(t.format, t.subs...)
+				t.expectContent(t.content + "\n")
+			})
+			It("should print content as is", func() {
+				out.Stringf(t.format, t.subs...)
+				t.expectContent(t.content)
+			})
+		})
+		Context("to errFile", func() {
+			JustBeforeEach(func() {
+				out.SetErrFile(t.f)
+			})
+
+			It("should set errFile", func() {
+				Expect(out.GetErrFile()).To(Equal(t.errFile))
+			})
+			It("should print content with newline", func() {
+				out.ErrLn(t.format, t.subs...)
+				t.expectContent(t.content + "\n")
+			})
+			It("should print content as is", func() {
+				out.Errf(t.format, t.subs...)
+				t.expectContent(t.content)
+			})
+		})
+	})
+})
+
+// Input for test cases
+type testInput struct {
+	f       *bytes.Buffer
+	errFile *bytes.Buffer
+
+	format string
+	subs   []interface{}
+
+	content string
 }
 
-func TestSetFileStreams(t *testing.T) {
-	tests := []struct {
-		outFile     *bytes.Buffer
-		errFile     *bytes.Buffer
-		description string
-	}{
-		{
-			description: "should set outFile and errFile",
-			outFile:     new(bytes.Buffer),
-			errFile:     new(bytes.Buffer),
-		},
-	}
-
-	for _, test := range tests {
-		beforeEach()
-		t.Run(test.description, func(t *testing.T) {
-			SetOutFile(test.outFile)
-			SetErrFile(test.errFile)
-
-			if outFile != test.outFile {
-				t.Fatalf("failed to set outFile")
-			}
-
-			if errFile != test.errFile {
-				t.Fatalf("failed to set errFile")
-			}
-		})
-	}
+type test struct {
+	*testInput
 }
 
-func TestOutputPrints(t *testing.T) {
-	tests := []struct {
-		description string
+func (t *test) expectContent(content string) {
+	Expect(t.f.String()).To(Equal(content))
+}
 
-		isStderr bool
+func newTest() *test {
+	return &test{
+		testInput: &testInput{
+			f:       new(bytes.Buffer),
+			errFile: new(bytes.Buffer),
 
-		outFile *bytes.Buffer
-		errFile *bytes.Buffer
+			format: "this is a format for content: %s",
+			subs:   []interface{}{"my-content"},
 
-		fn     func(format string, a ...interface{})
-		format string
-		a      []interface{}
-
-		expected string
-	}{
-		{
-			description: "should print content to stdout with Ln",
-			outFile:     new(bytes.Buffer),
-			errFile:     new(bytes.Buffer),
-			fn:          Ln,
-			format:      "this is a format for content: %s",
-			a:           []interface{}{"my-content"},
-			expected:    "this is a format for content: my-content\n",
+			content: "this is a format for content: my-content",
 		},
-		{
-			description: "should print content to stdout with Stringf",
-			outFile:     new(bytes.Buffer),
-			errFile:     new(bytes.Buffer),
-			fn:          Stringf,
-			format:      "this is a format for content: %s",
-			a:           []interface{}{"my-content"},
-			expected:    "this is a format for content: my-content",
-		},
-		{
-			description: "should print content to stdout with ErrLn",
-			isStderr:    true,
-			outFile:     new(bytes.Buffer),
-			errFile:     new(bytes.Buffer),
-			fn:          ErrLn,
-			format:      "this is a format for content: %s",
-			a:           []interface{}{"my-content"},
-			expected:    "this is a format for content: my-content\n",
-		},
-		{
-			description: "should print content to stdout with Errf",
-			isStderr:    true,
-			outFile:     new(bytes.Buffer),
-			errFile:     new(bytes.Buffer),
-			fn:          Errf,
-			format:      "this is a format for content: %s",
-			a:           []interface{}{"my-content"},
-			expected:    "this is a format for content: my-content",
-		},
-	}
-
-	for _, test := range tests {
-		beforeEach()
-		SetOutFile(test.outFile)
-		SetErrFile(test.errFile)
-
-		t.Run(test.description, func(t *testing.T) {
-			// Expect output
-			test.fn(test.format, test.a...)
-
-			var actual string
-			if test.isStderr {
-				actual = test.errFile.String()
-			} else {
-				actual = test.outFile.String()
-			}
-			if test.expected != actual {
-				t.Fatalf("expected output %s but received %s", test.expected, actual)
-			}
-		})
 	}
 }

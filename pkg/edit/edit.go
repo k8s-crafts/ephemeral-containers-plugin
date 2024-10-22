@@ -85,28 +85,17 @@ func OpenEditorForFile(ctx context.Context, editor, path string, args ...string)
 // * EDITOR env var
 // * Default to vi (vim)
 func GetEditorCmd(fromFlag string) string {
-	return GetValueFromSources(
-		func() string {
-			return fromFlag
-		},
-		func() string {
-			return os.Getenv(ENV_KUBE_EDITOR)
-		},
-		func() string {
-			return os.Getenv(ENV_EDITOR)
-		},
-		func() string {
-			return DEFAULT_EDITOR
-		},
-	)
-}
+	sources := []string{
+		fromFlag,
+		os.Getenv(ENV_KUBE_EDITOR),
+		os.Getenv(ENV_EDITOR),
+	}
 
-// Get value from multiple sources until a non-empty value is returned
-func GetValueFromSources(sources ...func() string) string {
 	for _, source := range sources {
-		if val := source(); len(val) > 0 {
-			return val
+		if len(source) > 0 {
+			return source
 		}
 	}
-	return ""
+
+	return DEFAULT_EDITOR
 }
