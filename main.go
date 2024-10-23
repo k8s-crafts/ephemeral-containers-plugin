@@ -18,7 +18,7 @@ import (
 	"flag"
 	"os"
 
-	plugin "github.com/k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/cmd"
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"github.com/spf13/pflag"
 	klog "k8s.io/klog/v2"
@@ -57,5 +57,5 @@ func main() {
 	out.SetErrFile(os.Stderr)
 
 	// Execute the command
-	plugin.Execute()
+	cmd.Execute()
 }
