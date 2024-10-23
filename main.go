@@ -25,6 +25,9 @@ import (
 )
 
 func main() {
+	// Initialize klog flag sets
+	klog.InitFlags(nil)
+
 	// Add go FlagSet (i.e. from klog) to pflag
 	pflag.CommandLine.ParseErrorsWhitelist.UnknownFlags = true
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)

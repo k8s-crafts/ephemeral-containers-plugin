@@ -21,23 +21,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Output the plugin version",
-	Long: `
-Output the plugin version
-`,
-	Run: func(cmd *cobra.Command, args []string) {
-		versionInfo := version.NewVersionInfo()
-		output, err := formatter.FormatVersionOutput(outputFormat, versionInfo)
-		if err != nil {
-			ExitError(err, 1)
-		}
+func NewVersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Output the plugin version",
+		Long: `
+	Output the plugin version
+	`,
+		Run: func(cmd *cobra.Command, args []string) {
+			versionInfo := version.NewVersionInfo()
+			output, err := formatter.FormatVersionOutput(outputFormat, versionInfo)
+			if err != nil {
+				ExitError(err, 1)
+			}
 
-		out.Ln("%s", output)
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
+			out.Ln("%s", output)
+		},
+	}
 }

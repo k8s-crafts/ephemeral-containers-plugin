@@ -24,35 +24,57 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/klog/v2"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "kubectl-ephemeral_containers",
-	Short: "A kubectl plugin to directly modify pods.spec.ephemeralContainers",
-	Long:  "A kubectl plugin to directly modify pods.spec.ephemeralContainers. It works by interacting the pod's ephemeralcontainers subresource",
-	Annotations: map[string]string{
-		cobra.CommandDisplayNameAnnotation: "kubectl ephemeral-containers",
-	},
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		// Set namespace to "default" if unset
-		if kubeConfig.Namespace == nil || *kubeConfig.Namespace == "" {
-			kubeConfig.Namespace = &k8s.NAMESPACE_DEFAULT
-		}
+var (
+	kubeConfig *k8s.KubeConfig
+	// Format for output
+	outputFormat    string
+	outputFlagUsage string = fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
+)
 
-		kubeConfig.ContextOptions = k8s.NewContextOptions()
-		if err := kubeConfig.ContextOptions.Init(kubeConfig.Timeout); err != nil {
-			ExitError(err, 1)
-		}
-	},
-	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		kubeConfig.ContextOptions.Cancel()
-	},
+func NewRootCmd() *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use:   "kubectl-ephemeral_containers",
+		Short: "A kubectl plugin to directly modify pods.spec.ephemeralContainers",
+		Long:  "A kubectl plugin to directly modify pods.spec.ephemeralContainers. It works by interacting the pod's ephemeralcontainers subresource",
+		Annotations: map[string]string{
+			cobra.CommandDisplayNameAnnotation: "kubectl ephemeral-containers",
+		},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			// Set namespace to "default" if unset
+			if kubeConfig.Namespace == nil || *kubeConfig.Namespace == "" {
+				kubeConfig.Namespace = &k8s.NAMESPACE_DEFAULT
+			}
+
+			kubeConfig.ContextOptions = k8s.NewContextOptions()
+			if err := kubeConfig.ContextOptions.Init(kubeConfig.Timeout); err != nil {
+				ExitError(err, 1)
+			}
+		},
+		PersistentPostRun: func(cmd *cobra.Command, args []string) {
+			kubeConfig.ContextOptions.Cancel()
+		},
+	}
+
+	// Define flags
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", formatter.Table, outputFlagUsage)
+
+	// Define kube CLI generic flags to generate a KubeConfig
+	kubeConfig = k8s.NewKubeConfig(genericclioptions.NewConfigFlags(true))
+	kubeConfig.AddFlags(rootCmd.PersistentFlags())
+
+	// Add subcommands
+	rootCmd.AddCommand(NewEditCmd(), NewListCmd(), NewVersionCmd())
+
+	return rootCmd
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	rootCmd := NewRootCmd()
+
 	if err := rootCmd.Execute(); err != nil {
 		ExitError(err, 1)
 	}
@@ -62,23 +84,4 @@ func Execute() {
 func ExitError(err error, exitCode int) {
 	out.ErrLn("%s", err.Error())
 	os.Exit(exitCode)
-}
-
-var (
-	kubeConfig *k8s.KubeConfig
-	// Format for output
-	outputFormat    string
-	outputFlagUsage string = fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
-)
-
-func init() {
-	// Initialize klog flag sets. These flags are added to pflags in main
-	klog.InitFlags(nil)
-
-	// Define flags
-	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", formatter.Table, outputFlagUsage)
-
-	// Define kube CLI generic flags to generate a KubeConfig
-	kubeConfig = k8s.NewKubeConfig(genericclioptions.NewConfigFlags(true))
-	kubeConfig.AddFlags(rootCmd.PersistentFlags())
 }
