@@ -18,13 +18,16 @@ import (
 	"flag"
 	"os"
 
-	plugin "github.com/k8s-crafts/ephemeral-containers-plugin/cmd/ephemeral-containers"
+	"github.com/k8s-crafts/ephemeral-containers-plugin/cmd"
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"github.com/spf13/pflag"
 	klog "k8s.io/klog/v2"
 )
 
 func main() {
+	// Initialize klog flag sets
+	klog.InitFlags(nil)
+
 	// Add go FlagSet (i.e. from klog) to pflag
 	pflag.CommandLine.ParseErrorsWhitelist.UnknownFlags = true
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
@@ -54,5 +57,5 @@ func main() {
 	out.SetErrFile(os.Stderr)
 
 	// Execute the command
-	plugin.Execute()
+	cmd.Execute()
 }

@@ -26,109 +26,97 @@ import (
 var _ = Describe("Formatter", func() {
 	var t *test
 
-	Context("when version is queried", func() {
+	Context("when formatting version", func() {
 		BeforeEach(func() {
 			t = newTest()
 		})
-		Context("when formatting version", func() {
-			Context("with table", func() {
-				It("should return", func() {
-					content, err := formatter.FormatVersionOutput(formatter.Table, t.version)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.versionTable))
-				})
-			})
+		It("should return as table", func() {
+			content, err := formatter.FormatVersionOutput(formatter.Table, t.version)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(content).To(Equal(t.versionTable))
+		})
 
-			Context("with JSON", func() {
-				It("should return", func() {
-					content, err := formatter.FormatVersionOutput(formatter.JSON, t.version)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.versionJSON))
-				})
-			})
-			Context("with YAML", func() {
-				It("should return", func() {
-					content, err := formatter.FormatVersionOutput(formatter.YAML, t.version)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.versionYAML))
-				})
-			})
+		It("should return as JSON", func() {
+			content, err := formatter.FormatVersionOutput(formatter.JSON, t.version)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(content).To(Equal(t.versionJSON))
+		})
+
+		It("should return as YAML", func() {
+			content, err := formatter.FormatVersionOutput(formatter.YAML, t.version)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(content).To(Equal(t.versionYAML))
 		})
 	})
 
-	Context("when pod has ephemeral containers", func() {
-		BeforeEach(func() {
-			t = newTestForPodWithEphemeralContainers()
-		})
+	Context("when listing ephemeral containers for pod", func() {
+		Context("with ephemeral containers", func() {
+			BeforeEach(func() {
+				t = newTestForPodWithEphemeralContainers()
+			})
 
-		Context("when listing ephemeral containers for pod", func() {
 			It("should return names", func() {
 				containers := formatter.ListEphemeralContainersForPod(t.pod)
 				t.expectEphemeralContainers(containers)
 			})
 		})
-
-		Context("when formatting list", func() {
-			Context("with table", func() {
-				It("should return", func() {
-					content, err := formatter.FormatListOutput(formatter.Table, []corev1.Pod{t.pod})
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.listTable))
-				})
+		Context("without ephemeral containers", func() {
+			BeforeEach(func() {
+				t = newTestForPodWithoutEphemeralContainers()
 			})
 
-			Context("with JSON", func() {
-				It("should return", func() {
-					content, err := formatter.FormatListOutput(formatter.JSON, []corev1.Pod{t.pod})
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.listYAML))
-				})
-			})
-			Context("with YAML", func() {
-				It("should return", func() {
-					content, err := formatter.FormatListOutput(formatter.YAML, []corev1.Pod{t.pod})
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.listJSON))
-				})
-			})
-		})
-	})
-
-	Context("when pod does not have ephemeral containers", func() {
-		BeforeEach(func() {
-			t = newTestForPodWithoutEphemeralContainers()
-		})
-
-		Context("when listing ephemeral containers for pod", func() {
 			It("should return empty", func() {
 				containers := formatter.ListEphemeralContainersForPod(t.pod)
 				t.expectEphemeralContainers(containers)
 			})
 		})
+	})
 
-		Context("when formatting list", func() {
-			Context("with table", func() {
-				It("should return", func() {
-					content, err := formatter.FormatListOutput(formatter.Table, nil)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.listTable))
-				})
-
+	Context("when formatting pod list", func() {
+		Context("with ephemeral containers", func() {
+			BeforeEach(func() {
+				t = newTestForPodWithEphemeralContainers()
 			})
 
-			Context("with JSON", func() {
-				It("should return", func() {
-					content, err := formatter.FormatListOutput(formatter.JSON, nil)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.listYAML))
-				})
+			It("should return as table", func() {
+				content, err := formatter.FormatListOutput(formatter.Table, []corev1.Pod{t.pod})
+				Expect(err).ToNot(HaveOccurred())
+				Expect(content).To(Equal(t.listTable))
 			})
-			Context("with YAML", func() {
-				It("should return", func() {
-					content, err := formatter.FormatListOutput(formatter.YAML, nil)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(content).To(Equal(t.listJSON))
-				})
+
+			It("should return as JSON", func() {
+				content, err := formatter.FormatListOutput(formatter.JSON, []corev1.Pod{t.pod})
+				Expect(err).ToNot(HaveOccurred())
+				Expect(content).To(Equal(t.listYAML))
+			})
+
+			It("should return as YAML", func() {
+				content, err := formatter.FormatListOutput(formatter.YAML, []corev1.Pod{t.pod})
+				Expect(err).ToNot(HaveOccurred())
+				Expect(content).To(Equal(t.listJSON))
+			})
+		})
+		Context("without ephemeral containers", func() {
+			BeforeEach(func() {
+				t = newTestForPodWithoutEphemeralContainers()
+			})
+
+			It("should return as table", func() {
+				content, err := formatter.FormatListOutput(formatter.Table, make([]corev1.Pod, 0))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(content).To(Equal(t.listTable))
+			})
+
+			It("should return as JSON", func() {
+				content, err := formatter.FormatListOutput(formatter.JSON, make([]corev1.Pod, 0))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(content).To(Equal(t.listYAML))
+			})
+
+			It("should return as YAML", func() {
+				content, err := formatter.FormatListOutput(formatter.YAML, make([]corev1.Pod, 0))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(content).To(Equal(t.listJSON))
 			})
 		})
 	})

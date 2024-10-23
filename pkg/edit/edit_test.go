@@ -23,8 +23,9 @@ import (
 )
 
 var _ = Describe("Edit", func() {
+	var t *test
+
 	Context("when editting", func() {
-		var t *test
 
 		JustBeforeEach(func() {
 			for _, env := range t.envs {

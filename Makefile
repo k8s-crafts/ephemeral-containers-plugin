@@ -8,18 +8,20 @@ GOARCH ?= $(shell go env GOARCH)
 
 ## Plugin version. Bump for each release
 VERSION ?= 1.2.0-dev
-
-## Tool versions
-GO_LICENSE_VERSION ?= 1.39.0
-GOLANGCI_LINT_VERSION ?= 1.61.0
-GINKGO_VERSION ?= 2.20.2 # Using ginkgo v2
-
 # Git Commit ID
 # GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
 # GIT_COMMIT_ID := $(if $(shell git status --porcelain --untracked-files=no),$(GIT_COMMIT_NO)-dirty,$(GIT_COMMIT_NO))
 
 export PLUGIN_VERSION=v$(VERSION)
 # export PLUGIN_GIT_COMMIT_ID=$(GIT_COMMIT_ID)
+
+## Tool versions
+GO_LICENSE_VERSION ?= 1.39.0
+GOLANGCI_LINT_VERSION ?= 1.61.0
+GINKGO_VERSION ?= 2.20.2 # Using ginkgo v2
+
+## Other flags
+SKIP_TESTS ?= false
 
 ##@ General
 
@@ -45,7 +47,9 @@ lint-fix: ## Apply lint fixes with golangci-lint
 
 .PHONY: test
 test: vet fmt ginkgo ## Run go tests.
+ifneq ($(SKIP_TESTS), true)
 	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out  ./...
+endif
 
 .PHONY: add-license
 add-license: go-license ## Add license header to source files.
@@ -91,7 +95,7 @@ generate: ## Generate go codes
 BUILD_DIR ?= $(shell pwd)/build
 
 .PHONY: build
-build: generate vet fmt ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
+build: generate test ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
 	mkdir -p $(BUILD_DIR)
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \
