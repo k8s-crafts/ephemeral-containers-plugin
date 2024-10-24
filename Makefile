@@ -45,12 +45,6 @@ lint: ## Run lint checks with golangci-lint
 lint-fix: ## Apply lint fixes with golangci-lint
 	$(GOLANGCI_LINT) run --fix ./...
 
-.PHONY: test
-test: vet fmt ginkgo ## Run go tests.
-ifneq ($(SKIP_TESTS), true)
-	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out  ./...
-endif
-
 .PHONY: add-license
 add-license: go-license ## Add license header to source files.
 	$(GO_LICENSE) --config go-license.yaml $(shell find ./ -name "*.go")
@@ -58,7 +52,26 @@ add-license: go-license ## Add license header to source files.
 .PHONY: add-license
 check-license: go-license ## Check license header to source files.
 	$(GO_LICENSE) --verify --config go-license.yaml $(shell find ./ -name "*.go")
-	
+
+.PHONY: test-unit
+test-unit: vet fmt ginkgo ## Run unit tests.
+ifneq ($(SKIP_TESTS), true)
+	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out  ./...
+endif
+
+## E2E Tests
+.PHONY: test-e2e
+test-e2e: e2e-setup ## Run e2e tests.
+	$(GINKGO) -v -output-dir=. ./e2e
+
+.PHONY: e2e-setup
+e2e-setup: ## Setting up environment for e2e tests.
+	./scripts/e2e_setup.sh
+
+.PHONY: e2e-teardown
+e2e-teardown: ## Tearing environment for e2e tests.
+	./scripts/e2e_cleanup.sh
+
 ##@ Install tools
 
 LOCAL_BIN ?= $(shell pwd)/bin

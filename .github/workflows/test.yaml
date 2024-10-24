@@ -31,7 +31,7 @@ jobs:
         with:
           go-version: "^1.22.0"
       - name: Run unit tests
-        run: make test
+        run: make test-unit
       - name: Display test coverge
         run: |
           COVERAGE=$(go tool cover -func=cover.out | grep total | awk '{print $3}'); \
