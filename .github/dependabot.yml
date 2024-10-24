@@ -7,5 +7,5 @@ updates:
       interval: daily
     labels:
       - "dependencies"
-      - "chore"
+      - "kind/build"
     open-pull-requests-limit: 20
