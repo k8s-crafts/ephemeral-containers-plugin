@@ -27,10 +27,11 @@ import (
 )
 
 var (
+	// KubeConfig reference
 	kubeConfig *k8s.KubeConfig
-	// Format for output
+
 	outputFormat    string
-	outputFlagUsage string = fmt.Sprintf("Format for output. One of: %s (default), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
+	outputFlagUsage string = fmt.Sprintf("Format for output. One of: default (%s for lists), %s, %s", formatter.Table, formatter.JSON, formatter.YAML)
 )
 
 func NewRootCmd() *cobra.Command {
@@ -42,10 +43,16 @@ func NewRootCmd() *cobra.Command {
 			cobra.CommandDisplayNameAnnotation: "kubectl ephemeral-containers",
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			// Set namespace to "default" if unset
-			if kubeConfig.Namespace == nil || *kubeConfig.Namespace == "" {
-				kubeConfig.Namespace = &k8s.NAMESPACE_DEFAULT
+			ns, _, err := kubeConfig.ToRawKubeConfigLoader().Namespace()
+			if err != nil {
+				ExitError(err, 1)
 			}
+
+			// Use namespace "default" if none is set
+			if len(ns) == 0 {
+				ns = k8s.NAMESPACE_DEFAULT
+			}
+			kubeConfig.Namespace = &ns
 
 			kubeConfig.ContextOptions = k8s.NewContextOptions()
 			if err := kubeConfig.ContextOptions.Init(kubeConfig.Timeout); err != nil {
@@ -61,7 +68,6 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", formatter.Table, outputFlagUsage)
 
 	// Define kube CLI generic flags to generate a KubeConfig
-	kubeConfig = k8s.NewKubeConfig(genericclioptions.NewConfigFlags(true))
 	kubeConfig.AddFlags(rootCmd.PersistentFlags())
 
 	// Add subcommands
@@ -84,4 +90,8 @@ func Execute() {
 func ExitError(err error, exitCode int) {
 	out.ErrLn("%s", err.Error())
 	os.Exit(exitCode)
+}
+
+func init() {
+	kubeConfig = k8s.NewKubeConfig(genericclioptions.NewConfigFlags(true))
 }
