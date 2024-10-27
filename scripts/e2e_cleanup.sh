@@ -5,13 +5,13 @@
 DEFAULT_CLUSTER_NAME=ephcont-e2e
 
 BIN="$(pwd)/testbin"
+KEEP_TOOLS=${KEEP_TOOLS:-true}
 
 main() {
     local cluster_name="$DEFAULT_CLUSTER_NAME"
 
-    parse_cli_args
+    parse_cli_args "$@"
 
-    echo "Deleting KinD cluster..."
     cleanup || true
 }
 
@@ -37,8 +37,13 @@ parse_cli_args() {
 }
 
 cleanup() {
-    $BIN/kind delete cluster --name $cluster_name
-    rm -rf "$BIN"
+    echo "Deleting KinD cluster..."
+    "$BIN/kind" delete cluster --name $cluster_name
+
+    if [ "$KEEP_TOOLS" = false ]; then
+        echo "Removing test tools..."
+        rm -rf "$BIN"
+    fi
 }
 
 main "$@"

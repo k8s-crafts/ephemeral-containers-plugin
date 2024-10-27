@@ -38,12 +38,16 @@ vet: ## Run go vet against source files.
 	go vet ./...
 
 .PHONY: lint
-lint: ## Run lint checks with golangci-lint
+lint: golangci-lint ## Run lint checks with golangci-lint
 	$(GOLANGCI_LINT) run ./...
 
 .PHONY: lint-fix
-lint-fix: ## Apply lint fixes with golangci-lint
+lint-fix: golangci-lint ## Apply lint fixes with golangci-lint
 	$(GOLANGCI_LINT) run --fix ./...
+
+.PHONY: shellcheck
+shellcheck: ## Run shell check against scripts
+	shellcheck ./scripts/*.sh
 
 .PHONY: add-license
 add-license: go-license ## Add license header to source files.
@@ -53,6 +57,8 @@ add-license: go-license ## Add license header to source files.
 check-license: go-license ## Check license header to source files.
 	$(GO_LICENSE) --verify --config go-license.yaml $(shell find ./ -name "*.go")
 
+##@ Tests
+
 .PHONY: test-unit
 test-unit: vet fmt ginkgo ## Run unit tests.
 ifneq ($(SKIP_TESTS), true)
@@ -60,17 +66,25 @@ ifneq ($(SKIP_TESTS), true)
 endif
 
 ## E2E Tests
+TEST_BIN := $(shell pwd)/testbin
+
 .PHONY: test-e2e
 test-e2e: e2e-setup ## Run e2e tests.
-	$(GINKGO) -v -output-dir=. ./e2e
+ifneq ($(SKIP_TESTS), true)
+	PATH="$${PATH}:$(TEST_BIN)" KUBECONFIG="$(TEST_BIN)/kubeconfig" $(GINKGO) -v -output-dir=. ./e2e
+endif
 
 .PHONY: e2e-setup
 e2e-setup: ## Setting up environment for e2e tests.
+ifneq ($(SKIP_TESTS), true)
 	./scripts/e2e_setup.sh
+endif
 
 .PHONY: e2e-teardown
 e2e-teardown: ## Tearing environment for e2e tests.
+ifneq ($(SKIP_TESTS), true)
 	./scripts/e2e_cleanup.sh
+endif
 
 ##@ Install tools
 
@@ -108,31 +122,27 @@ generate: ## Generate go codes
 BUILD_DIR ?= $(shell pwd)/build
 
 .PHONY: build
-build: generate test ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
+build: generate test-unit ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
 	mkdir -p $(BUILD_DIR)
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \
 		main.go
 
 .PHONY: clean
-clean: ## Clean built binaries
+clean: ## Clean built binaries.
 	- rm -rf $(BUILD_DIR)
 
 # Default to $HOME/bin
 INSTALL_DIR ?= $(HOME)/bin
 
 .PHONY: install
-install: ## Install the plugin to PATH. The binary must be built first (i.e. make build).
+install: build ## Build and install the plugin to PATH (Default to $HOME/bin).
 ifeq (,$(findstring $(INSTALL_DIR),$(PATH)))
 	$(error $(INSTALL_DIR) is not on $$PATH)
 else
 	@if [ -s "$(INSTALL_DIR)/kubectl-ephemeral_containers" ]; then \
 		echo "$(INSTALL_DIR)/kubectl-ephemeral_containers exists. Please remove it with \"make uninstall\"."; \
 		exit 1; \
-	fi; \
-	if [ ! -x "$(BUILD_DIR)/kubectl-ephemeral_containers" ]; then \
-		echo "$(BUILD_DIR)/kubectl-ephemeral_containers executable does not exist. Please build it with \"make build\"."; \
-		exit 2; \
 	fi; \
 	install -m 755 $(BUILD_DIR)/kubectl-ephemeral_containers $(INSTALL_DIR)/kubectl-ephemeral_containers
 	@echo Installed to $(BUILD_DIR)/kubectl-ephemeral_containers

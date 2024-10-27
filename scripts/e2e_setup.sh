@@ -29,7 +29,7 @@ main() {
         ;;
     esac
 
-    parse_cli_args
+    parse_cli_args "$@"
 
     echo "Installing kind..."
     install_kind
@@ -111,18 +111,20 @@ install_kubectl() {
     fi
 }
 
+# Create a KinD cluster
+# and write client configurations to testbin/kubeconfig
 create_cluster() {
-    $BIN/kind create cluster --config "$config" --name "$cluster_name"
+    KUBECONFIG="$BIN/kubeconfig" "$BIN/kind" create cluster --config "$config" --name "$cluster_name"
 }
 
 check_tool_available() {
     local tool="$1"
     local version="$2"
 
-    # If the tool exists
+    # If the tool path exists (and executable) and the version matches
     if test -x "$tool" && grep "$version" <<<"$($tool version 2>/dev/null)" >/dev/null 2>&1; then
         return 0
-    fi 
+    fi
     return 1
 }
 

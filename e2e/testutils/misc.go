@@ -14,4 +14,17 @@
 
 package testutils
 
-//
+import "math/rand"
+
+// Generate a random string with a specific length
+func generateRandom(length int) string {
+	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
+
+	b := make([]byte, length)
+
+	for i := range b {
+		b[i] = chars[rand.Intn(len(chars))]
+	}
+
+	return string(b)
+}
