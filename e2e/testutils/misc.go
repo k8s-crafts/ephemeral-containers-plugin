@@ -14,11 +14,16 @@
 
 package testutils
 
-import "math/rand"
+import (
+	"math/rand"
+	"path"
+	"strings"
+)
 
 // Generate a random string with a specific length
+// NOTE: k8s requires object names to be lowercase
 func generateRandom(length int) string {
-	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
+	chars := "abcdefghijklmnopqrstuvwxyz0123456789"
 
 	b := make([]byte, length)
 
@@ -27,4 +32,13 @@ func generateRandom(length int) string {
 	}
 
 	return string(b)
+}
+
+// Working directory: <project-root>/e2e
+func getTestdataDir() string {
+	return path.Join("testdata")
+}
+
+func IsErrorNotFound(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "not found")
 }

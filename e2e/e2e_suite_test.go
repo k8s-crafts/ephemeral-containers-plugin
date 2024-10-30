@@ -17,6 +17,7 @@ package e2e_test
 import (
 	"testing"
 
+	. "github.com/k8s-crafts/ephemeral-containers-plugin/e2e/testutils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -25,3 +26,21 @@ func TestE2E(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "E2E Suite")
 }
+
+var (
+	tr *TestResource
+)
+
+var _ = BeforeSuite(func() {
+	_tr, err := NewTestResource()
+	Expect(err).ToNot(HaveOccurred())
+
+	// Assign to global var for access in tests
+	tr = _tr
+
+	Expect(tr.CreateNamespace()).ToNot(HaveOccurred())
+})
+
+var _ = AfterSuite(func() {
+	Expect(tr.DeleteNamespace()).ToNot(HaveOccurred())
+})

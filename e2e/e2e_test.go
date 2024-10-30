@@ -15,12 +15,47 @@
 package e2e_test
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("kubectl ephemeral-containers", func() {
-	It("should do something", func() {
-		Expect("ABC").To(Equal("ABC"))
+	BeforeEach(func() {
+		Expect(tr.CreateTestPod()).ToNot(HaveOccurred())
+		Expect(tr.WaitForPodReady()).ToNot(HaveOccurred())
+	})
+
+	AfterEach(func() {
+		Expect(tr.DeleteTestPod()).ToNot(HaveOccurred())
+	})
+
+	Context("list", func() {
+		It("should return empty if none", func() {
+			By("checking checking pod ephemeralContainers spec")
+
+			actual, err := tr.RunPluginListCmd()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(actual).To(Equal(fmt.Sprintf("No pods with ephemeral containers found in namespace %s\n", tr.Kubectl.Namespace)))
+		})
+		It("should return the list if any", func() {
+			Expect(tr.RunDebugContainer(true)).ToNot(HaveOccurred())
+
+			By("checking checking pod ephemeralContainers spec")
+			expected := fmt.Sprintf(
+				`+------------+-----------+----------------------+
+|    POD     | NAMESPACE | EPHEMERAL CONTAINERS |
++------------+-----------+----------------------+
+| plugin-e2e | %s  | debugger             |
++------------+-----------+----------------------+
+
+`, tr.Kubectl.Namespace,
+			)
+
+			actual, err := tr.RunPluginListCmd()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(actual).To(Equal(expected))
+		})
 	})
 })

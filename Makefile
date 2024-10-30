@@ -18,7 +18,7 @@ export PLUGIN_VERSION=v$(VERSION)
 ## Tool versions
 GO_LICENSE_VERSION ?= 1.39.0
 GOLANGCI_LINT_VERSION ?= 1.61.0
-GINKGO_VERSION ?= 2.20.2 # Using ginkgo v2
+GINKGO_VERSION ?= 2.21.0 # Using ginkgo v2
 
 ## Other flags
 SKIP_TESTS ?= false
@@ -69,9 +69,9 @@ endif
 TEST_BIN := $(shell pwd)/testbin
 
 .PHONY: test-e2e
-test-e2e: e2e-setup ## Run e2e tests.
+test-e2e: e2e-setup ginkgo ## Run e2e tests.
 ifneq ($(SKIP_TESTS), true)
-	PATH="$${PATH}:$(TEST_BIN)" KUBECONFIG="$(TEST_BIN)/kubeconfig" $(GINKGO) -v -output-dir=. ./e2e
+	PATH="$${PATH}:$(TEST_BIN)" KUBECONFIG="$(TEST_BIN)/kubeconfig" $(GINKGO) --timeout=10m -vv -output-dir=. ./e2e
 endif
 
 .PHONY: e2e-setup
