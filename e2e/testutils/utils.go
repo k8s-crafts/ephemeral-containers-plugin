@@ -73,6 +73,11 @@ func (t *TestResource) DeleteNamespace() error {
 	return err
 }
 
+func (t *TestResource) CreateServiceAccount() error {
+	_, err := t.Kubectl.Apply(true, "-f", path.Join(getTestdataDir(), "serviceaccount.yaml"))
+	return err
+}
+
 func (t *TestResource) CreateTestPod() error {
 	_, err := t.Kubectl.Apply(true, "-f", path.Join(getTestdataDir(), "pod.yaml"))
 	return err

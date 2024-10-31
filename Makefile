@@ -122,7 +122,7 @@ generate: ## Generate go codes
 BUILD_DIR ?= $(shell pwd)/build
 
 .PHONY: build
-build: generate test-unit ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
+build: generate ## Build ephemeral-containers-plugin binary (i.e. must have kubectl- prefix).
 	mkdir -p $(BUILD_DIR)
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
 		-o $(BUILD_DIR)/kubectl-ephemeral_containers \

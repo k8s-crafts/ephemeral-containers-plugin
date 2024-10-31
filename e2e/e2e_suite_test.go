@@ -39,6 +39,7 @@ var _ = BeforeSuite(func() {
 	tr = _tr
 
 	Expect(tr.CreateNamespace()).ToNot(HaveOccurred())
+	Expect(tr.CreateServiceAccount()).ToNot(HaveOccurred())
 })
 
 var _ = AfterSuite(func() {

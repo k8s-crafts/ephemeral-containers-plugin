@@ -32,3 +32,4 @@ spec:
     seccompProfile:
       type: RuntimeDefault
   terminationGracePeriodSeconds: 30
+  serviceAccountName: plugin-e2e
