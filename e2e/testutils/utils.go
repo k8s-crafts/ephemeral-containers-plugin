@@ -26,12 +26,6 @@ import (
 	kbutils "sigs.k8s.io/kubebuilder/v4/test/e2e/utils"
 )
 
-var (
-	MinK8sVersion string = "v1.25.0"
-	TestPodName   string = "plugin-e2e"
-	DebugImage    string = "docker.io/library/busybox:1.28"
-)
-
 type TestResource struct {
 	// For invoking kubectl command
 	Kubectl    *kbutils.Kubectl
@@ -95,7 +89,7 @@ func (t *TestResource) RunDebugContainer(interactive bool) error {
 		"debug",
 		fmt.Sprintf("pods/%s", TestPodName),
 		fmt.Sprintf("--image=%s", DebugImage),
-		"--container=debugger",
+		fmt.Sprintf("--container=%s", EphContainerName),
 	}
 
 	if interactive {

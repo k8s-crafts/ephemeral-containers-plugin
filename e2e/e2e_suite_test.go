@@ -34,10 +34,14 @@ var (
 var _ = BeforeSuite(func() {
 	var err error
 
-	// tr (TesResource) is defined globally
+	// tr is defined globally
 	tr, err = NewTestResource()
 	Expect(err).ToNot(HaveOccurred())
 
+	// Check if the kube API is supported
+	Expect(tr.IsKubeAPICompatible()).To(BeTrue())
+
+	// Create resources for tests
 	Expect(tr.CreateNamespace()).ToNot(HaveOccurred())
 	Expect(tr.CreateServiceAccount()).ToNot(HaveOccurred())
 })

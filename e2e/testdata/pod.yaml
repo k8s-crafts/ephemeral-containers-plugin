@@ -5,6 +5,7 @@ metadata:
     app.kubernetes.io/part-of: e2e-suite
     app.kubernetes.io/component: testpod
     app.kubernetes.io/managed-by: k8s-crafts
+    k8s-crafts.io/role: e2e
   name: plugin-e2e
 spec:
   containers:
