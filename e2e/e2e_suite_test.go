@@ -32,12 +32,16 @@ var (
 )
 
 var _ = BeforeSuite(func() {
-	_tr, err := NewTestResource()
+	var err error
+
+	// tr is defined globally
+	tr, err = NewTestResource()
 	Expect(err).ToNot(HaveOccurred())
 
-	// Assign to global var for access in tests
-	tr = _tr
+	// Check if the kube API is supported
+	Expect(tr.IsKubeAPICompatible()).To(BeTrue())
 
+	// Create resources for tests
 	Expect(tr.CreateNamespace()).ToNot(HaveOccurred())
 	Expect(tr.CreateServiceAccount()).ToNot(HaveOccurred())
 })

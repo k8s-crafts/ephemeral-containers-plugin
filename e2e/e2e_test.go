@@ -32,30 +32,52 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 	})
 
 	Context("list", func() {
-		It("should return empty if none", func() {
-			By("checking checking pod ephemeralContainers spec")
-
-			actual, err := tr.RunPluginListCmd()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(actual).To(Equal(fmt.Sprintf("No pods with ephemeral containers found in namespace %s\n", tr.Kubectl.Namespace)))
+		When("there is no ephemeral container", func() {
+			It("should return empty message", func() {
+				actual, err := tr.RunPluginListCmd("")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(actual).To(Equal(fmt.Sprintf("No pods with ephemeral containers found in namespace %s\n", tr.Kubectl.Namespace)))
+			})
 		})
-		It("should return the list if any", func() {
-			Expect(tr.RunDebugContainer(true)).ToNot(HaveOccurred())
+		When("there are ephemeral containers", func() {
+			DescribeTable("should list in expected format", func(format string) {
+				Expect(tr.RunDebugContainer(true)).ToNot(HaveOccurred())
 
-			By("checking checking pod ephemeralContainers spec")
-			expected := fmt.Sprintf(
-				`+------------+-----------+----------------------+
-|    POD     | NAMESPACE | EPHEMERAL CONTAINERS |
-+------------+-----------+----------------------+
-| plugin-e2e | %s  | debugger             |
-+------------+-----------+----------------------+
-
-`, tr.Kubectl.Namespace,
+				actual, err := tr.RunPluginListCmd(format)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(actual).To(Equal(tr.NewListOutput(format)))
+			},
+				Entry("in Table", ""),
+				Entry("in JSON", "json"),
+				Entry("in YAML", "yaml"),
 			)
-
-			actual, err := tr.RunPluginListCmd()
-			Expect(err).ToNot(HaveOccurred())
-			Expect(actual).To(Equal(expected))
 		})
+
+	})
+
+	Context("help", func() {
+		DescribeTable("should print help message for command", func(subCmd string) {
+			actual, err := tr.RunPluginHelpCmd(subCmd)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(actual).ToNot(BeEmpty())
+			Expect(actual).To(ContainSubstring("Usage:"))
+			Expect(actual).To(ContainSubstring("Flags:"))
+
+			if len(subCmd) == 0 {
+				Expect(actual).To(ContainSubstring("Available Commands:"))
+			} else {
+				Expect(actual).To(ContainSubstring("Global Flags:"))
+			}
+		},
+			Entry("list", "list"),
+			Entry("edit", "edit"),
+			Entry("version", "version"),
+			Entry("root", ""),
+		)
+	})
+
+	Context("edit", func() {
+		// TODO: Add e2e tests for edit command
 	})
 })

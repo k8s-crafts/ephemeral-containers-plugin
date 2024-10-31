@@ -26,12 +26,6 @@ import (
 	kbutils "sigs.k8s.io/kubebuilder/v4/test/e2e/utils"
 )
 
-var (
-	MinK8sVersion string = "v1.25.0"
-	TestPodName   string = "plugin-e2e"
-	DebugImage    string = "docker.io/library/busybox:1.28"
-)
-
 type TestResource struct {
 	// For invoking kubectl command
 	Kubectl    *kbutils.Kubectl
@@ -95,7 +89,7 @@ func (t *TestResource) RunDebugContainer(interactive bool) error {
 		"debug",
 		fmt.Sprintf("pods/%s", TestPodName),
 		fmt.Sprintf("--image=%s", DebugImage),
-		"--container=debugger",
+		fmt.Sprintf("--container=%s", EphContainerName),
 	}
 
 	if interactive {
@@ -106,9 +100,13 @@ func (t *TestResource) RunDebugContainer(interactive bool) error {
 	return err
 }
 
-func (t *TestResource) RunPluginListCmd() (string, error) {
+func (t *TestResource) RunPluginListCmd(format string) (string, error) {
 	// Setting namespace manually as flags cannot be set before plugin name
-	return t.Kubectl.Command(t.PluginName, "list", "-n", t.Kubectl.Namespace)
+	return t.Kubectl.Command(t.PluginName, "list", "-n", t.Kubectl.Namespace, "-o", format)
+}
+
+func (t *TestResource) RunPluginHelpCmd(subCmd string) (string, error) {
+	return t.Kubectl.Command(t.PluginName, "help", subCmd)
 }
 
 func (t *TestResource) WaitForPodReady() error {
