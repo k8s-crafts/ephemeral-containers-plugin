@@ -32,7 +32,7 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 	})
 
 	Context("list", func() {
-		It("should return empty if none", func() {
+		It("should return empty message if none", func() {
 			By("checking checking pod ephemeralContainers spec")
 
 			actual, err := tr.RunPluginListCmd()

@@ -32,11 +32,11 @@ var (
 )
 
 var _ = BeforeSuite(func() {
-	_tr, err := NewTestResource()
-	Expect(err).ToNot(HaveOccurred())
+	var err error
 
-	// Assign to global var for access in tests
-	tr = _tr
+	// tr (TesResource) is defined globally
+	tr, err = NewTestResource()
+	Expect(err).ToNot(HaveOccurred())
 
 	Expect(tr.CreateNamespace()).ToNot(HaveOccurred())
 	Expect(tr.CreateServiceAccount()).ToNot(HaveOccurred())
