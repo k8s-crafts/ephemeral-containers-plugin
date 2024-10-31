@@ -31,9 +31,21 @@ jobs:
         with:
           go-version: "^1.22.0"
       - name: Run unit tests
-        run: make test
+        run: make test-unit
       - name: Display test coverge
         run: |
           COVERAGE=$(go tool cover -func=cover.out | grep total | awk '{print $3}'); \
           echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY; \
           echo "Coverage: $COVERAGE" >> $GITHUB_STEP_SUMMARY
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "^1.22.0"
+      - name: Run E2E tests
+        run: make test-e2e
+      - name: Clean up
+        run: make e2e-teardown
