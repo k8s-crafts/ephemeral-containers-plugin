@@ -100,9 +100,13 @@ func (t *TestResource) RunDebugContainer(interactive bool) error {
 	return err
 }
 
-func (t *TestResource) RunPluginListCmd() (string, error) {
+func (t *TestResource) RunPluginListCmd(format string) (string, error) {
 	// Setting namespace manually as flags cannot be set before plugin name
-	return t.Kubectl.Command(t.PluginName, "list", "-n", t.Kubectl.Namespace)
+	return t.Kubectl.Command(t.PluginName, "list", "-n", t.Kubectl.Namespace, "-o", format)
+}
+
+func (t *TestResource) RunPluginHelpCmd(subCmd string) (string, error) {
+	return t.Kubectl.Command(t.PluginName, "help", subCmd)
 }
 
 func (t *TestResource) WaitForPodReady() error {

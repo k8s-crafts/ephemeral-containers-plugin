@@ -38,9 +38,9 @@ func NewEditCmd() *cobra.Command {
 		Use:   "edit",
 		Short: "Command to edit the ephemeralContainers spec for a Pod",
 		Long: `
-	This command is a convenient wrapper that, in turn, uses the pod's ephemeralcontainers subresource.
-	
-	Note: The command only consider changes to "pod.spec.ephemeralContainers". Other changes are ignored.
+This command is a convenient wrapper that, in turn, uses the pod's ephemeralcontainers subresource.
+
+Note: The command only consider changes to "pod.spec.ephemeralContainers". Other changes are ignored.
 	`,
 		// Format: "pod/pod-name", "pod pod-name", "pod-name"
 		Args: cobra.RangeArgs(1, 2),

@@ -14,9 +14,47 @@
 
 package testutils
 
+import (
+	"fmt"
+)
+
 var (
 	MinK8sVersion    string = "v1.25.0"
 	TestPodName      string = "plugin-e2e"
 	DebugImage       string = "docker.io/library/busybox:1.28"
 	EphContainerName string = "debugger"
+	PodName          string = "plugin-e2e"
 )
+
+func (t *TestResource) NewListOutput(format string) string {
+	switch format {
+	case "json":
+		return fmt.Sprintf(`[
+  {
+    "name": "%s",
+    "namespace": "%s",
+    "ephemeralContainers": [
+      "%s"
+    ]
+  }
+]
+`, PodName, t.Kubectl.Namespace, EphContainerName,
+		)
+	case "yaml":
+		return fmt.Sprintf(`- ephemeralContainers:
+  - %s
+  name: %s
+  namespace: %s
+
+`, EphContainerName, PodName, t.Kubectl.Namespace)
+	default: // table or empty
+		return fmt.Sprintf(
+			`+------------+-----------+----------------------+
+|    POD     | NAMESPACE | EPHEMERAL CONTAINERS |
++------------+-----------+----------------------+
+| %s | %s  | %s             |
++------------+-----------+----------------------+
+
+`, PodName, t.Kubectl.Namespace, EphContainerName)
+	}
+}

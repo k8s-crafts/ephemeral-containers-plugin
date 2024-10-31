@@ -26,7 +26,7 @@ func NewVersionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Output the plugin version",
 		Long: `
-	Output the plugin version
+Output the plugin version
 	`,
 		Run: func(cmd *cobra.Command, args []string) {
 			versionInfo := version.NewVersionInfo()
