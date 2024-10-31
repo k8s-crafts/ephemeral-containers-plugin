@@ -62,7 +62,7 @@ check-license: go-license ## Check license header to source files.
 .PHONY: test-unit
 test-unit: vet fmt ginkgo ## Run unit tests.
 ifneq ($(SKIP_TESTS), true)
-	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out  ./...
+	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out  ./pkg ./cmd
 endif
 
 ## E2E Tests
@@ -71,7 +71,7 @@ TEST_BIN := $(shell pwd)/testbin
 .PHONY: test-e2e
 test-e2e: e2e-setup ginkgo ## Run e2e tests.
 ifneq ($(SKIP_TESTS), true)
-	PATH="$${PATH}:$(TEST_BIN)" KUBECONFIG="$(TEST_BIN)/kubeconfig" $(GINKGO) --timeout=10m -vv -output-dir=. ./e2e
+	PATH="$${PATH}:$(TEST_BIN)" KUBECONFIG="$(TEST_BIN)/kubeconfig" $(GINKGO) --timeout=10m -v -output-dir=. ./e2e
 endif
 
 .PHONY: e2e-setup

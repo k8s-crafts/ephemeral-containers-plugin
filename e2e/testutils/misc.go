@@ -17,7 +17,6 @@ package testutils
 import (
 	"math/rand"
 	"path"
-	"strings"
 )
 
 // Generate a random string with a specific length
@@ -37,8 +36,4 @@ func generateRandom(length int) string {
 // Working directory: <project-root>/e2e
 func getTestdataDir() string {
 	return path.Join("testdata")
-}
-
-func IsErrorNotFound(err error) bool {
-	return err != nil && strings.Contains(err.Error(), "not found")
 }

@@ -79,10 +79,7 @@ func (t *TestResource) CreateTestPod() error {
 }
 
 func (t *TestResource) DeleteTestPod() error {
-	_, err := t.Kubectl.Delete(false, "-f", path.Join(getTestdataDir(), "pod.yaml"))
-	if IsErrorNotFound(err) {
-		return nil
-	}
+	_, err := t.Kubectl.Delete(false, "--ignore-not-found=true", "-f", path.Join(getTestdataDir(), "pod.yaml"))
 	return err
 }
 
@@ -114,9 +111,6 @@ func (t *TestResource) WaitForPodReady() error {
 		// kubectl wait --for=condition=Ready=false pod/busybox1
 		_, err = t.Kubectl.CommandInNamespace("wait", "--for=condition=Ready", fmt.Sprintf("pods/%s", TestPodName))
 		if err != nil {
-			if IsErrorNotFound(err) {
-				return false, nil
-			}
 			return false, err
 		}
 		return true, nil
