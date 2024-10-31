@@ -69,9 +69,9 @@ endif
 TEST_BIN := $(shell pwd)/testbin
 
 .PHONY: test-e2e
-test-e2e: e2e-setup ginkgo ## Run e2e tests.
+test-e2e: build e2e-setup ginkgo ## Run e2e tests.
 ifneq ($(SKIP_TESTS), true)
-	PATH="$${PATH}:$(TEST_BIN)" KUBECONFIG="$(TEST_BIN)/kubeconfig" $(GINKGO) --timeout=10m -v -output-dir=. ./e2e
+	PATH="$(BUILD_DIR):$(TEST_BIN):$${PATH}" KUBECONFIG="$(TEST_BIN)/kubeconfig" $(GINKGO) --timeout=10m -v -output-dir=. ./e2e
 endif
 
 .PHONY: e2e-setup
