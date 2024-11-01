@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"strings"
 	"time"
 
 	"golang.org/x/mod/semver"
@@ -36,8 +37,13 @@ type TestResource struct {
 
 func NewTestResource() (*TestResource, error) {
 	kubectl := &kbutils.Kubectl{
-		CmdContext: &kbutils.CmdContext{},
-		Namespace:  fmt.Sprintf("%s-%s", "e2e", generateRandom(4)),
+		CmdContext: &kbutils.CmdContext{
+			Env: []string{
+				"EDITOR=vi",
+				"KUBE_EDITOR=",
+			},
+		},
+		Namespace: fmt.Sprintf("%s-%s", "e2e", generateRandom(4)),
 	}
 
 	k8sVersion, err := kubectl.Version()
@@ -50,6 +56,21 @@ func NewTestResource() (*TestResource, error) {
 		K8sVersion: &k8sVersion,
 		PluginName: "ephemeral-containers",
 	}, nil
+}
+
+func (t *TestResource) SetEnv(key, value string) {
+	// Last occurence takes precendence
+	t.Kubectl.Env = append(t.Kubectl.Env, fmt.Sprintf("%s=%s", key, value))
+}
+
+func (t *TestResource) UnsetEnv(key string) {
+	envs := t.Kubectl.Env
+	for i, _env := range envs {
+		if strings.Contains(_env, fmt.Sprintf("%s=", key)) {
+			envs = append(envs[:i], envs[i+1:]...)
+		}
+	}
+	t.Kubectl.Env = envs
 }
 
 // ephemeralcontainer subresource is supported on Kubernetes >= v1.25
@@ -82,6 +103,10 @@ func (t *TestResource) DeleteTestPod() error {
 	return err
 }
 
+func (t *TestResource) ListEphemeralContainerNamesForTestPod() (string, error) {
+	return t.Kubectl.CommandInNamespace("get", fmt.Sprintf("pods/%s", TestPodName), "-o=jsonpath='{.spec.ephemeralContainers[*].name}'")
+}
+
 // Add an ephemeral containers by kubectl debug
 // If interactive, it is not attached
 func (t *TestResource) RunDebugContainer(interactive bool) error {
@@ -100,18 +125,22 @@ func (t *TestResource) RunDebugContainer(interactive bool) error {
 	return err
 }
 
+func (t *TestResource) RunPluginHelpCmd(subCmd string) (string, error) {
+	return t.Kubectl.Command(t.PluginName, "help", subCmd)
+}
+
 func (t *TestResource) RunPluginListCmd(format string) (string, error) {
 	// Setting namespace manually as flags cannot be set before plugin name
 	return t.Kubectl.Command(t.PluginName, "list", "-n", t.Kubectl.Namespace, "-o", format)
 }
 
-func (t *TestResource) RunPluginHelpCmd(subCmd string) (string, error) {
-	return t.Kubectl.Command(t.PluginName, "help", subCmd)
+func (t *TestResource) RunPluginEditCmd(podName string) (string, error) {
+	// Setting namespace manually as flags cannot be set before plugin name
+	return t.Kubectl.Command(t.PluginName, "edit", "-n", t.Kubectl.Namespace, podName)
 }
 
 func (t *TestResource) WaitForPodReady() error {
 	return wait.PollUntilContextCancel(context.TODO(), time.Second, true, func(ctx context.Context) (done bool, err error) {
-		// kubectl wait --for=condition=Ready=false pod/busybox1
 		_, err = t.Kubectl.CommandInNamespace("wait", "--for=condition=Ready", fmt.Sprintf("pods/%s", TestPodName))
 		if err != nil {
 			return false, err

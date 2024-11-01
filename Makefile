@@ -67,6 +67,7 @@ endif
 
 ## E2E Tests
 TEST_BIN := $(shell pwd)/testbin
+E2E_SKIP_SETUP ?= false
 
 .PHONY: test-e2e
 test-e2e: build e2e-setup ginkgo ## Run e2e tests.
@@ -77,7 +78,9 @@ endif
 .PHONY: e2e-setup
 e2e-setup: ## Setting up environment for e2e tests.
 ifneq ($(SKIP_TESTS), true)
+ifneq ($(E2E_SKIP_SETUP), true)
 	./scripts/e2e_setup.sh
+endif
 endif
 
 .PHONY: e2e-teardown
