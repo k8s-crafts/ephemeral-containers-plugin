@@ -27,7 +27,7 @@ var _ = Describe("Version", func() {
 
 			Expect(actual).ToNot(BeNil())
 			// NOTE: Bump version for release
-			Expect(actual.Version).To(Equal("v1.2.0-dev"))
+			Expect(actual.Version).To(Equal("v1.3.0-dev"))
 		})
 	})
 })
