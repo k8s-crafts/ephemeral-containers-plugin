@@ -7,6 +7,7 @@ The guide describes workflow for developing the plugin. Feel free to suggest any
 - Linux distros (e.g. Fedora, Ubuntu)
 - [Go](https://go.dev/doc/install) `v1.22`
 - Make
+- [yq](https://mikefarah.gitbook.io/yq#install) `v4+`
 - Kubernetes `>= v1.25.0-0` (e.g. [minikube](https://minikube.sigs.k8s.io/docs/) or [CRC](https://developers.redhat.com/products/openshift-local/getting-started))
 
 ### Fork the repository
@@ -46,6 +47,12 @@ make test
 ```
 
 A coverage report will created at `cover.out`.
+
+To execute E2E tests, run:
+
+```bash
+make test-e2e
+```
 
 ### Run lints
 

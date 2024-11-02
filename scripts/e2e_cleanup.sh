@@ -4,7 +4,10 @@
 
 DEFAULT_CLUSTER_NAME=ephcont-e2e
 
-BIN="$(pwd)/testbin"
+# Directory scripts
+DIR="$(dirname "$(readlink -f "$0")")"
+BIN="$DIR/../testbin"
+
 KEEP_TOOLS=${KEEP_TOOLS:-true}
 
 main() {

@@ -6,7 +6,9 @@ DEFAULT_KUBECTL_VERSION=v1.30.0
 DEFAULT_KIND_VERSION=v0.24.0
 DEFAULT_CLUSTER_NAME=ephcont-e2e
 
-BIN="$(pwd)/testbin"
+# Directory scripts
+DIR="$(dirname "$(readlink -f "$0")")"
+BIN="$DIR/../testbin"
 
 # Entry point
 main() {
@@ -36,6 +38,9 @@ main() {
 
     echo "Installing kubectl..."
     install_kubectl
+
+    echo "Installing custom editor..."
+    install_custom_editor
 
     echo "Creating KinD cluster..."
     create_cluster
@@ -111,10 +116,15 @@ install_kubectl() {
     fi
 }
 
+install_custom_editor() {
+    cp "$DIR/e2e_vim.sh" "$BIN/vi"
+    chmod +x "$BIN/vi"
+}
+
 # Create a KinD cluster
 # and write client configurations to testbin/kubeconfig
 create_cluster() {
-    KUBECONFIG="$BIN/kubeconfig" "$BIN/kind" create cluster --config "$config" --name "$cluster_name"
+    KUBECONFIG="$BIN/kubeconfig" "$BIN/kind" create cluster --config "$config" --name "$cluster_name" 2>/dev/null
 }
 
 check_tool_available() {

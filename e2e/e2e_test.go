@@ -17,6 +17,7 @@ package e2e_test
 import (
 	"fmt"
 
+	"github.com/k8s-crafts/ephemeral-containers-plugin/e2e/testutils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -78,6 +79,72 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 	})
 
 	Context("edit", func() {
-		// TODO: Add e2e tests for edit command
+		JustBeforeEach(func() {
+			Expect(tr.RunDebugContainer(true)).ToNot(HaveOccurred())
+		})
+
+		AfterEach(func() {
+			tr.UnsetEnv("E2E_EDIT_ACTION")
+			tr.UnsetEnv("container_name")
+		})
+
+		When("making no changes", func() {
+			BeforeEach(func() {
+				tr.SetEnv("E2E_EDIT_ACTION", "")
+			})
+
+			It("should print a message", func() {
+				actual, err := tr.RunPluginEditCmd(testutils.PodName)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(actual).To(Equal(fmt.Sprintf("Edit cancelled, no changes made for pod/%s\n", testutils.PodName)))
+			})
+		})
+
+		When("modifying an existing ephemeral container", func() {
+			BeforeEach(func() {
+				tr.SetEnv("E2E_EDIT_ACTION", "modify")
+			})
+
+			It("should fail with Forbidden error", func() {
+				actual, err := tr.RunPluginEditCmd(testutils.PodName)
+
+				Expect(err).To(HaveOccurred())
+				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be changed", testutils.PodName, testutils.EphContainerName)))
+			})
+		})
+
+		When("deleting an existing ephemeral container", func() {
+			BeforeEach(func() {
+				tr.SetEnv("E2E_EDIT_ACTION", "delete")
+			})
+
+			It("should fail with Forbidden error", func() {
+				actual, err := tr.RunPluginEditCmd(testutils.PodName)
+
+				Expect(err).To(HaveOccurred())
+				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be removed", testutils.PodName, testutils.EphContainerName)))
+			})
+		})
+
+		When("adding a new ephemeral container", func() {
+			BeforeEach(func() {
+				tr.SetEnv("E2E_EDIT_ACTION", "add")
+				tr.SetEnv("container_name", "another-debugger")
+			})
+
+			It("should succeed with a message", func() {
+				actual, err := tr.RunPluginEditCmd(testutils.PodName)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(actual).To(Equal(fmt.Sprintf("pod/%s successfully edited\n", testutils.TestPodName)))
+
+				names, err := tr.ListEphemeralContainerNamesForTestPod()
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(names).To(ContainSubstring(testutils.EphContainerName))
+				Expect(names).To(ContainSubstring("another-debugger"))
+			})
+		})
 	})
 })
