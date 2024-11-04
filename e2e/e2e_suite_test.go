@@ -15,6 +15,7 @@
 package e2e_test
 
 import (
+	"fmt"
 	"testing"
 
 	. "github.com/k8s-crafts/ephemeral-containers-plugin/e2e/testutils"
@@ -38,14 +39,23 @@ var _ = BeforeSuite(func() {
 	tr, err = NewTestResource()
 	Expect(err).ToNot(HaveOccurred())
 
+	By("checking if kube API meets minimum required version")
 	// Check if the kube API is supported
 	Expect(tr.IsKubeAPICompatible()).To(BeTrue())
 
 	// Create resources for tests
-	Expect(tr.CreateNamespace()).ToNot(HaveOccurred())
-	Expect(tr.CreateServiceAccount()).ToNot(HaveOccurred())
+	for _, ns := range tr.GetTestNamespaces() {
+		By(fmt.Sprintf("creating namespace %s and test resources", ns))
+
+		Expect(tr.CreateNamespace(ns)).ToNot(HaveOccurred())
+		Expect(tr.CreateServiceAccount(ns)).ToNot(HaveOccurred())
+	}
 })
 
 var _ = AfterSuite(func() {
-	Expect(tr.DeleteNamespace()).ToNot(HaveOccurred())
+	for _, ns := range tr.GetTestNamespaces() {
+		By(fmt.Sprintf("deleting namespace %s", ns))
+
+		Expect(tr.DeleteNamespace(ns)).ToNot(HaveOccurred())
+	}
 })

@@ -32,7 +32,9 @@ type TestResource struct {
 	Kubectl    *kbutils.Kubectl
 	Client     *kubernetes.Clientset
 	K8sVersion *kbutils.KubernetesVersion
-	PluginName string
+	// Another namespace besides namespace in context
+	AnotherNamespace string
+	PluginName       string
 }
 
 func NewTestResource() (*TestResource, error) {
@@ -43,7 +45,7 @@ func NewTestResource() (*TestResource, error) {
 				"KUBE_EDITOR=",
 			},
 		},
-		Namespace: fmt.Sprintf("%s-%s", "e2e", generateRandom(4)),
+		Namespace: fmt.Sprintf("%s-%s", "e2e0", generateRandom(4)),
 	}
 
 	k8sVersion, err := kubectl.Version()
@@ -52,10 +54,15 @@ func NewTestResource() (*TestResource, error) {
 	}
 
 	return &TestResource{
-		Kubectl:    kubectl,
-		K8sVersion: &k8sVersion,
-		PluginName: "ephemeral-containers",
+		Kubectl:          kubectl,
+		K8sVersion:       &k8sVersion,
+		PluginName:       "ephemeral-containers",
+		AnotherNamespace: fmt.Sprintf("%s-%s", "e2e1", generateRandom(4)),
 	}, nil
+}
+
+func (t *TestResource) GetTestNamespaces() []string {
+	return []string{t.Kubectl.Namespace, t.AnotherNamespace}
 }
 
 func (t *TestResource) SetEnv(key, value string) {
@@ -78,43 +85,44 @@ func (t *TestResource) IsKubeAPICompatible() bool {
 	return semver.Compare(t.K8sVersion.ServerVersion.GitVersion, MinK8sVersion) >= 0
 }
 
-func (t *TestResource) CreateNamespace() error {
-	_, err := t.Kubectl.Command("create", "namespace", t.Kubectl.Namespace)
+func (t *TestResource) CreateNamespace(namespace string) error {
+	_, err := t.Kubectl.Command("create", "namespace", namespace)
 	return err
 }
 
-func (t *TestResource) DeleteNamespace() error {
-	_, err := t.Kubectl.Delete(false, "namespace", t.Kubectl.Namespace)
+func (t *TestResource) DeleteNamespace(namespace string) error {
+	_, err := t.Kubectl.Delete(false, "namespace", namespace)
 	return err
 }
 
-func (t *TestResource) CreateServiceAccount() error {
-	_, err := t.Kubectl.Apply(true, "-f", path.Join(getTestdataDir(), "serviceaccount.yaml"))
+func (t *TestResource) CreateServiceAccount(namespace string) error {
+	_, err := t.Kubectl.Apply(true, "-n", namespace, "-f", path.Join(getTestdataDir(), "serviceaccount.yaml"))
 	return err
 }
 
-func (t *TestResource) CreateTestPod() error {
-	_, err := t.Kubectl.Apply(true, "-f", path.Join(getTestdataDir(), "pod.yaml"))
+func (t *TestResource) CreateTestPod(namespace string) error {
+	_, err := t.Kubectl.Apply(true, "-n", namespace, "-f", path.Join(getTestdataDir(), "pod.yaml"))
 	return err
 }
 
-func (t *TestResource) DeleteTestPod() error {
-	_, err := t.Kubectl.Delete(false, "--ignore-not-found=true", "-f", path.Join(getTestdataDir(), "pod.yaml"))
+func (t *TestResource) DeleteTestPod(namespace string) error {
+	_, err := t.Kubectl.Delete(false, "-n", namespace, "--ignore-not-found=true", "-f", path.Join(getTestdataDir(), "pod.yaml"))
 	return err
 }
 
-func (t *TestResource) ListEphemeralContainerNamesForTestPod() (string, error) {
-	return t.Kubectl.CommandInNamespace("get", fmt.Sprintf("pods/%s", TestPodName), "-o=jsonpath='{.spec.ephemeralContainers[*].name}'")
+func (t *TestResource) ListEphemeralContainerNamesForTestPod(namespace string) (string, error) {
+	return t.Kubectl.CommandInNamespace("get", "-n", namespace, fmt.Sprintf("pods/%s", TestPodName), "-o=jsonpath='{.spec.ephemeralContainers[*].name}'")
 }
 
 // Add an ephemeral containers by kubectl debug
 // If interactive, it is not attached
-func (t *TestResource) RunDebugContainer(interactive bool) error {
+func (t *TestResource) RunDebugContainerForTestPod(namespace, containerName string, interactive bool) error {
 	args := []string{
 		"debug",
+		"-n", namespace,
 		fmt.Sprintf("pods/%s", TestPodName),
 		fmt.Sprintf("--image=%s", DebugImage),
-		fmt.Sprintf("--container=%s", EphContainerName),
+		fmt.Sprintf("--container=%s", containerName),
 	}
 
 	if interactive {
@@ -129,19 +137,31 @@ func (t *TestResource) RunPluginHelpCmd(subCmd string) (string, error) {
 	return t.Kubectl.Command(t.PluginName, "help", subCmd)
 }
 
-func (t *TestResource) RunPluginListCmd(format string) (string, error) {
+func (t *TestResource) RunPluginListCmd(format string, namespace string) (string, error) {
 	// Setting namespace manually as flags cannot be set before plugin name
-	return t.Kubectl.Command(t.PluginName, "list", "-n", t.Kubectl.Namespace, "-o", format)
+	args := []string{t.PluginName, "list"}
+
+	if len(namespace) > 0 {
+		args = append(args, "-n", namespace)
+	} else {
+		args = append(args, "--all-namespaces")
+	}
+
+	if len(format) > 0 {
+		args = append(args, "-o", format)
+	}
+
+	return t.Kubectl.Command(args...)
 }
 
-func (t *TestResource) RunPluginEditCmd(podName string) (string, error) {
+func (t *TestResource) RunPluginEditCmd(namespace string, podName string) (string, error) {
 	// Setting namespace manually as flags cannot be set before plugin name
-	return t.Kubectl.Command(t.PluginName, "edit", "-n", t.Kubectl.Namespace, podName)
+	return t.Kubectl.Command(t.PluginName, "edit", "-n", namespace, podName)
 }
 
-func (t *TestResource) WaitForPodReady() error {
+func (t *TestResource) WaitForTestPodReady(namespace string) error {
 	return wait.PollUntilContextCancel(context.TODO(), time.Second, true, func(ctx context.Context) (done bool, err error) {
-		_, err = t.Kubectl.CommandInNamespace("wait", "--for=condition=Ready", fmt.Sprintf("pods/%s", TestPodName))
+		_, err = t.Kubectl.CommandInNamespace("wait", "-n", namespace, "--for=condition=Ready", fmt.Sprintf("pods/%s", TestPodName))
 		if err != nil {
 			return false, err
 		}
