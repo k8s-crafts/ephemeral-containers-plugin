@@ -104,10 +104,18 @@ func NewKubeConfig(configFlags *genericclioptions.ConfigFlags) *KubeConfig {
 // * --kubeconfig flag pointing at a file
 // * KUBECONFIG environment variable pointing at a file
 // * $HOME/.kube/config if exists.
-func NewClientset(kubeConfig *KubeConfig) (*kubernetes.Clientset, error) {
+func NewClientset(kubeConfig *KubeConfig) (*KubeClientset, error) {
 	config, err := kubeConfig.ToRESTConfig()
 	if err != nil {
 		return nil, err
 	}
-	return kubernetes.NewForConfig(config)
+
+	_clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &KubeClientset{
+		Clientset: _clientset,
+	}, nil
 }

@@ -55,7 +55,7 @@ Note: The command only consider changes to "pod.spec.ephemeralContainers". Other
 				ExitError(err, 1)
 			}
 
-			pod, err := k8s.GetPod(kubeConfig.ContextOptions, client, *kubeConfig.Namespace, podName)
+			pod, err := client.GetPod(kubeConfig.ContextOptions, *kubeConfig.Namespace, podName)
 			if err != nil {
 				ExitError(err, 1)
 			}
@@ -75,7 +75,7 @@ Note: The command only consider changes to "pod.spec.ephemeralContainers". Other
 			}
 
 			if patch != nil {
-				if _, err = k8s.UpdateEphemeralContainersForPod(kubeConfig.ContextOptions, client, patch); err != nil {
+				if _, err = client.UpdateEphemeralContainersForPod(kubeConfig.ContextOptions, patch); err != nil {
 					ExitError(err, 1)
 				}
 				out.Ln("pod/%s successfully edited", podName)

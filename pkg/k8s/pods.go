@@ -29,9 +29,13 @@ import (
 
 type PodFilterFn func(pod corev1.Pod) bool
 
+type KubeClientset struct {
+	*kubernetes.Clientset
+}
+
 // List pods by filters in the specified namespace
 // If namespace is empty (i.e. ""), list in all namespaces
-func ListPods(ctx context.Context, client *kubernetes.Clientset, namespace string, filters ...PodFilterFn) ([]corev1.Pod, error) {
+func (client *KubeClientset) ListPods(ctx context.Context, namespace string, filters ...PodFilterFn) ([]corev1.Pod, error) {
 	podList, err := client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -40,7 +44,7 @@ func ListPods(ctx context.Context, client *kubernetes.Clientset, namespace strin
 }
 
 // Get pod by name in a specific namespace
-func GetPod(ctx context.Context, client *kubernetes.Clientset, namespace, name string) (*corev1.Pod, error) {
+func (client *KubeClientset) GetPod(ctx context.Context, namespace, name string) (*corev1.Pod, error) {
 	pod, err := client.CoreV1().Pods(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -49,7 +53,7 @@ func GetPod(ctx context.Context, client *kubernetes.Clientset, namespace, name s
 }
 
 // Update pod's ephemeralContainer subresource
-func UpdateEphemeralContainersForPod(ctx context.Context, client *kubernetes.Clientset, pod *corev1.Pod) (*corev1.Pod, error) {
+func (client *KubeClientset) UpdateEphemeralContainersForPod(ctx context.Context, pod *corev1.Pod) (*corev1.Pod, error) {
 	return client.CoreV1().Pods(pod.Namespace).UpdateEphemeralContainers(ctx, pod.Name, pod, metav1.UpdateOptions{})
 }
 

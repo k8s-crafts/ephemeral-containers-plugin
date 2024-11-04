@@ -49,7 +49,7 @@ List the Pods with ephemeral containers in the current namespace
 				namespace = ""
 			}
 
-			pods, err := k8s.ListPods(kubeConfig.ContextOptions, client, namespace, filterFn)
+			pods, err := client.ListPods(kubeConfig.ContextOptions, namespace, filterFn)
 			if err != nil {
 				ExitError(err, 1)
 			}

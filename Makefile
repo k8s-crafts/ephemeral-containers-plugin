@@ -59,6 +59,9 @@ check-license: go-license ## Check license header to source files.
 
 ##@ Tests
 
+.PHONY: test-all
+test-all: test-unit test-e2e ## Run all tests (i.e. unit and e2e tests)
+
 .PHONY: test-unit
 test-unit: vet fmt ginkgo ## Run unit tests.
 ifneq ($(SKIP_TESTS), true)
