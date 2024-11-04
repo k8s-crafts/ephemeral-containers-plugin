@@ -44,26 +44,17 @@ List the Pods with ephemeral containers in the current namespace
 				ExitError(err, 1)
 			}
 
-			namespaces := []string{*kubeConfig.Namespace}
+			namespace := *kubeConfig.Namespace
 			if allNamespace {
-				availableNs, err := k8s.ListNamespaces(kubeConfig.ContextOptions, client)
-				if err != nil {
-					ExitError(err, 1)
-				}
-				namespaces = k8s.GetNamespaceNames(availableNs)
+				namespace = ""
 			}
 
-			var result []corev1.Pod
-
-			for _, ns := range namespaces {
-				pods, err := k8s.ListPods(kubeConfig.ContextOptions, client, ns, filterFn)
-				if err != nil {
-					ExitError(err, 1)
-				}
-				result = append(result, pods...)
+			pods, err := client.ListPods(kubeConfig.ContextOptions, namespace, filterFn)
+			if err != nil {
+				ExitError(err, 1)
 			}
 
-			output, err := formatter.FormatListOutput(outputFormat, result)
+			output, err := formatter.FormatListOutput(outputFormat, pods)
 			if err != nil {
 				ExitError(err, 1)
 			}
