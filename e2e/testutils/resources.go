@@ -26,7 +26,59 @@ var (
 	PodName          string = "plugin-e2e"
 )
 
-func (t *TestResource) NewListOutput(format string) string {
+func (t *TestResource) NewListOutput(format string, namespace string) string {
+	if len(namespace) == 0 {
+		return t.newListInAllNamespaces(format)
+	}
+	return t.newListInNamespace(format, namespace)
+}
+
+func (t *TestResource) newListInAllNamespaces(format string) string {
+	switch format {
+	case "json":
+		return fmt.Sprintf(`[
+  {
+    "name": "%s",
+    "namespace": "%s",
+    "ephemeralContainers": [
+      "%s"
+    ]
+  },
+  {
+    "name": "%s",
+    "namespace": "%s",
+    "ephemeralContainers": [
+      "%s"
+    ]
+  }
+]
+`, PodName, t.Kubectl.Namespace, EphContainerName, PodName, t.AnotherNamespace, EphContainerName,
+		)
+	case "yaml":
+		return fmt.Sprintf(`- ephemeralContainers:
+  - %s
+  name: %s
+  namespace: %s
+- ephemeralContainers:
+  - %s
+  name: %s
+  namespace: %s
+
+`, EphContainerName, PodName, t.Kubectl.Namespace, EphContainerName, PodName, t.AnotherNamespace)
+	default: // table or empty
+		return fmt.Sprintf(
+			`+------------+-----------+----------------------+
+|    POD     | NAMESPACE | EPHEMERAL CONTAINERS |
++------------+-----------+----------------------+
+| %s | %s | %s             |
+| %s | %s | %s             |
++------------+-----------+----------------------+
+
+`, PodName, t.Kubectl.Namespace, EphContainerName, PodName, t.AnotherNamespace, EphContainerName)
+	}
+}
+
+func (t *TestResource) newListInNamespace(format string, namespace string) string {
 	switch format {
 	case "json":
 		return fmt.Sprintf(`[
@@ -38,7 +90,7 @@ func (t *TestResource) NewListOutput(format string) string {
     ]
   }
 ]
-`, PodName, t.Kubectl.Namespace, EphContainerName,
+`, PodName, namespace, EphContainerName,
 		)
 	case "yaml":
 		return fmt.Sprintf(`- ephemeralContainers:
@@ -52,9 +104,16 @@ func (t *TestResource) NewListOutput(format string) string {
 			`+------------+-----------+----------------------+
 |    POD     | NAMESPACE | EPHEMERAL CONTAINERS |
 +------------+-----------+----------------------+
-| %s | %s  | %s             |
+| %s | %s | %s             |
 +------------+-----------+----------------------+
 
-`, PodName, t.Kubectl.Namespace, EphContainerName)
+`, PodName, namespace, EphContainerName)
 	}
+}
+
+func (t *TestResource) NewListEmptyMessage(namespace string) string {
+	if len(namespace) == 0 {
+		return "No pods with ephemeral containers found any namespaces\n"
+	}
+	return fmt.Sprintf("No pods with ephemeral containers found in namespace %s\n", namespace)
 }
