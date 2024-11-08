@@ -30,7 +30,7 @@ import (
 type PodFilterFn func(pod corev1.Pod) bool
 
 type KubeClientset struct {
-	*kubernetes.Clientset
+	kubernetes.Interface
 }
 
 // List pods by filters in the specified namespace

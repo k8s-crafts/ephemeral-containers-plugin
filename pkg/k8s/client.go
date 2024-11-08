@@ -38,15 +38,10 @@ type ContextOptions struct {
 	SigChan chan os.Signal
 }
 
-// Get a new ContextOptions struct
-func NewContextOptions() *ContextOptions {
-	return &ContextOptions{}
-}
-
 // Set up the options with the following steps:
 // * Create a Context with timeout if any. Otherwise, no timeout is set (i.e. context.Background())
 // * Create a chan os.Signal to handle SIGTERM, SIGINT (Ctrl + C),SIGHUP (terminal is closed)
-func (opts *ContextOptions) Init(timeout *string) error {
+func (opts *ContextOptions) InitContext(timeout *string) error {
 	// Global context
 	var ctx context.Context
 	var cancel context.CancelFunc
@@ -89,13 +84,14 @@ func (opts *ContextOptions) Init(timeout *string) error {
 // Represent kube client configurations
 type KubeConfig struct {
 	*genericclioptions.ConfigFlags
-	ContextOptions *ContextOptions
+	*ContextOptions
 }
 
 // Get a new KubeConfig struct
-func NewKubeConfig(configFlags *genericclioptions.ConfigFlags) *KubeConfig {
+func NewKubeConfig() *KubeConfig {
 	return &KubeConfig{
-		ConfigFlags: configFlags,
+		ConfigFlags:    genericclioptions.NewConfigFlags(true),
+		ContextOptions: &ContextOptions{},
 	}
 }
 
@@ -116,6 +112,6 @@ func NewClientset(kubeConfig *KubeConfig) (*KubeClientset, error) {
 	}
 
 	return &KubeClientset{
-		Clientset: _clientset,
+		Interface: _clientset,
 	}, nil
 }
