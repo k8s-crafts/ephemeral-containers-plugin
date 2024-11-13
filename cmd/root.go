@@ -22,7 +22,6 @@ import (
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/k8s"
 	"github.com/k8s-crafts/ephemeral-containers-plugin/pkg/out"
 	"github.com/spf13/cobra"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
@@ -54,8 +53,7 @@ func NewRootCmd() *cobra.Command {
 			}
 			kubeConfig.Namespace = &ns
 
-			kubeConfig.ContextOptions = k8s.NewContextOptions()
-			if err := kubeConfig.ContextOptions.Init(kubeConfig.Timeout); err != nil {
+			if err := kubeConfig.InitContext(kubeConfig.Timeout); err != nil {
 				ExitError(err, 1)
 			}
 		},
@@ -93,5 +91,5 @@ func ExitError(err error, exitCode int) {
 }
 
 func init() {
-	kubeConfig = k8s.NewKubeConfig(genericclioptions.NewConfigFlags(true))
+	kubeConfig = k8s.NewKubeConfig()
 }
