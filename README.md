@@ -55,4 +55,4 @@ For details on how to contribute, see [Contributing Guides](./CONTRIBUTING.md) a
 
 ## License
 
-The project follows [Apache License 2.0](./LICENSE) license.
+The project follows [MIT License](./LICENSE). Feel free to use, experiment and distribute the project as per terms in the license!

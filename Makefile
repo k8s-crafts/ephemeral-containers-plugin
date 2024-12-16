@@ -53,6 +53,10 @@ shellcheck: ## Run shell check against scripts
 add-license: go-license ## Add license header to source files.
 	$(GO_LICENSE) --config go-license.yaml $(shell find ./ -name "*.go")
 
+.PHONY: remove-license ## Remove license header to source files.
+ remove-license:
+	$(GO_LICENSE) --remove --config go-license.yaml $(shell find ./ -name "*.go")
+
 .PHONY: add-license
 check-license: go-license ## Check license header to source files.
 	$(GO_LICENSE) --verify --config go-license.yaml $(shell find ./ -name "*.go")
