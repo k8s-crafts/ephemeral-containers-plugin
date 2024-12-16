@@ -61,4 +61,4 @@ For more details, see [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## License
 
-The project follows [Apache License 2.0](./LICENSE) license.
+The project follows [MIT License](./LICENSE) license.
