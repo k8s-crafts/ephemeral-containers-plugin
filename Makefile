@@ -18,7 +18,7 @@ export PLUGIN_VERSION=v$(VERSION)
 ## Tool versions
 GO_LICENSE_VERSION ?= 1.39.0
 GOLANGCI_LINT_VERSION ?= 1.61.0
-GINKGO_VERSION ?= 2.21.0 # Using ginkgo v2
+GINKGO_VERSION ?= 2.22.1 # Using ginkgo v2
 
 ## Other flags
 SKIP_TESTS ?= false
@@ -69,7 +69,7 @@ test-all: test-unit test-e2e ## Run all tests (i.e. unit and e2e tests)
 .PHONY: test-unit
 test-unit: vet fmt ginkgo ## Run unit tests.
 ifneq ($(SKIP_TESTS), true)
-	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out  ./pkg ./cmd
+	$(GINKGO) -v -output-dir=. -cover -coverpkg=./... -r -coverprofile cover.out ./pkg ./cmd
 endif
 
 ## E2E Tests
@@ -93,7 +93,7 @@ endif
 .PHONY: e2e-teardown
 e2e-teardown: ## Tearing environment for e2e tests.
 ifneq ($(SKIP_TESTS), true)
-	./scripts/e2e_cleanup.sh
+	- ./scripts/e2e_cleanup.sh
 endif
 
 ##@ Install tools

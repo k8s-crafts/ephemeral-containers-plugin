@@ -37,6 +37,7 @@ import (
 
 var (
 	NAMESPACE_DEFAULT string = "default"
+	noopFunc          func() = func() {}
 )
 
 // Represent context with a cancel func
@@ -62,16 +63,19 @@ func (opts *ContextOptions) InitContext(timeout *string) error {
 		}
 		ctx, cancel = context.WithTimeout(context.Background(), duration)
 	} else {
-		ctx, cancel = context.Background(), func() {
-			// no-op
-		}
+		ctx, cancel = context.Background(), noopFunc
+	}
+
+	opts.SigChan = make(chan os.Signal, 1)
+	signal.Notify(opts.SigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+
+	opts.Context = ctx
+	opts.Cancel = func() {
+		cancel()
+		signal.Stop(opts.SigChan)
 	}
 
 	// Signal handler
-	opts.SigChan = make(chan os.Signal, 1)
-
-	signal.Notify(opts.SigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-
 	go func() {
 		select {
 		case <-opts.SigChan:
@@ -81,12 +85,12 @@ func (opts *ContextOptions) InitContext(timeout *string) error {
 		}
 	}()
 
-	opts.Context = ctx
-	opts.Cancel = func() {
-		signal.Stop(opts.SigChan)
-		cancel()
-	}
 	return nil
+}
+
+// Cancel execution context
+func (opts *ContextOptions) CancelContext() {
+	opts.Cancel()
 }
 
 // Represent kube client configurations

@@ -66,7 +66,7 @@ func NewRootCmd() *cobra.Command {
 			}
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			kubeConfig.ContextOptions.Cancel()
+			kubeConfig.CancelContext()
 		},
 	}
 

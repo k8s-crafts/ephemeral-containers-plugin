@@ -150,7 +150,7 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 				actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
 
 				Expect(err).ToNot(HaveOccurred())
-				Expect(actual).To(Equal(fmt.Sprintf("Edit cancelled, no changes made for pod/%s\n", testutils.PodName)))
+				Expect(actual).To(Equal(fmt.Sprintf("Edit cancelled, no changes made for pod/%s\n", testutils.TestPodName)))
 			})
 		})
 
@@ -165,7 +165,7 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 				actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
 
 				Expect(err).To(HaveOccurred())
-				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be changed", testutils.PodName, testutils.EphContainerName)))
+				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be changed", testutils.TestPodName, testutils.EphContainerName)))
 			})
 		})
 
@@ -180,7 +180,7 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 				actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
 
 				Expect(err).To(HaveOccurred())
-				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be removed", testutils.PodName, testutils.EphContainerName)))
+				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be removed", testutils.TestPodName, testutils.EphContainerName)))
 			})
 		})
 
