@@ -31,15 +31,13 @@ import (
 
 	"golang.org/x/mod/semver"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/kubernetes"
 	kbutils "sigs.k8s.io/kubebuilder/v4/test/e2e/utils"
 )
 
 type TestResource struct {
 	// For invoking kubectl command
-	Kubectl    *kbutils.Kubectl
-	Client     *kubernetes.Clientset
-	K8sVersion *kbutils.KubernetesVersion
+	*kbutils.Kubectl
+	*kbutils.KubernetesVersion
 	// Another namespace besides namespace in context
 	AnotherNamespace string
 	PluginName       string
@@ -62,35 +60,35 @@ func NewTestResource() (*TestResource, error) {
 	}
 
 	return &TestResource{
-		Kubectl:          kubectl,
-		K8sVersion:       &k8sVersion,
-		PluginName:       "ephemeral-containers",
-		AnotherNamespace: fmt.Sprintf("%s-%s", "e2e1", generateRandom(4)),
+		Kubectl:           kubectl,
+		KubernetesVersion: &k8sVersion,
+		PluginName:        "ephemeral-containers",
+		AnotherNamespace:  fmt.Sprintf("%s-%s", "e2e1", generateRandom(4)),
 	}, nil
 }
 
 func (t *TestResource) GetTestNamespaces() []string {
-	return []string{t.Kubectl.Namespace, t.AnotherNamespace}
+	return []string{t.Namespace, t.AnotherNamespace}
 }
 
 func (t *TestResource) SetEnv(key, value string) {
 	// Last occurence takes precendence
-	t.Kubectl.Env = append(t.Kubectl.Env, fmt.Sprintf("%s=%s", key, value))
+	t.Env = append(t.Env, fmt.Sprintf("%s=%s", key, value))
 }
 
 func (t *TestResource) UnsetEnv(key string) {
-	envs := t.Kubectl.Env
+	envs := t.Env
 	for i, _env := range envs {
 		if strings.Contains(_env, fmt.Sprintf("%s=", key)) {
 			envs = append(envs[:i], envs[i+1:]...)
 		}
 	}
-	t.Kubectl.Env = envs
+	t.Env = envs
 }
 
 // ephemeralcontainer subresource is supported on Kubernetes >= v1.25
 func (t *TestResource) IsKubeAPICompatible() bool {
-	return semver.Compare(t.K8sVersion.ServerVersion.GitVersion, MinK8sVersion) >= 0
+	return semver.Compare(t.ServerVersion.GitVersion, MinK8sVersion) >= 0
 }
 
 func (t *TestResource) CreateNamespace(namespace string) error {
@@ -104,12 +102,12 @@ func (t *TestResource) DeleteNamespace(namespace string) error {
 }
 
 func (t *TestResource) CreateServiceAccount(namespace string) error {
-	_, err := t.Kubectl.Apply(true, "-n", namespace, "-f", path.Join(getTestdataDir(), "serviceaccount.yaml"))
+	_, err := t.Kubectl.Apply(false, "-n", namespace, "-f", path.Join(getTestdataDir(), "serviceaccount.yaml"))
 	return err
 }
 
 func (t *TestResource) CreateTestPod(namespace string) error {
-	_, err := t.Kubectl.Apply(true, "-n", namespace, "-f", path.Join(getTestdataDir(), "pod.yaml"))
+	_, err := t.Kubectl.Apply(false, "-n", namespace, "-f", path.Join(getTestdataDir(), "pod.yaml"))
 	return err
 }
 
@@ -119,7 +117,7 @@ func (t *TestResource) DeleteTestPod(namespace string) error {
 }
 
 func (t *TestResource) ListEphemeralContainerNamesForTestPod(namespace string) (string, error) {
-	return t.Kubectl.CommandInNamespace("get", "-n", namespace, fmt.Sprintf("pods/%s", TestPodName), "-o=jsonpath='{.spec.ephemeralContainers[*].name}'")
+	return t.Kubectl.Command("get", "-n", namespace, fmt.Sprintf("pods/%s", TestPodName), "-o=jsonpath='{.spec.ephemeralContainers[*].name}'")
 }
 
 // Add an ephemeral containers by kubectl debug
@@ -137,7 +135,7 @@ func (t *TestResource) RunDebugContainerForTestPod(namespace, containerName stri
 		args = append(args, "-it", "--attach=false")
 	}
 
-	_, err := t.Kubectl.CommandInNamespace(args...)
+	_, err := t.Kubectl.Command(args...)
 	return err
 }
 
@@ -169,7 +167,7 @@ func (t *TestResource) RunPluginEditCmd(namespace string, podName string) (strin
 
 func (t *TestResource) WaitForTestPodReady(namespace string) error {
 	return wait.PollUntilContextCancel(context.TODO(), time.Second, true, func(ctx context.Context) (done bool, err error) {
-		_, err = t.Kubectl.CommandInNamespace("wait", "-n", namespace, "--for=condition=Ready", fmt.Sprintf("pods/%s", TestPodName))
+		_, err = t.Kubectl.Command("wait", "-n", namespace, "--for=condition=Ready", fmt.Sprintf("pods/%s", TestPodName))
 		if err != nil {
 			return false, err
 		}

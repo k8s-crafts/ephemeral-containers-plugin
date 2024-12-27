@@ -27,81 +27,103 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var _ = Describe("Cmd", func() {
 	var t *test
 
-	Context("when creating", func() {
+	BeforeEach(func() {
+		t = newTest()
+	})
+
+	Context("root command", func() {
 		BeforeEach(func() {
-			t = newTest()
+			t.cmd = cmd.NewRootCmd()
+			t.subCmds = []string{"edit", "list", "version"}
 		})
 
-		Context("root command", func() {
-			JustBeforeEach(func() {
-				t.cmd = cmd.NewRootCmd()
-			})
-
-			It("should have basic configurations", func() {
-				t.expectCmdBasics()
-			})
-
-			It("should have CommandDisplayNameAnnotatio annotation", func() {
-				t.expectCmdAnnotation(cobra.CommandDisplayNameAnnotation, "kubectl ephemeral-containers")
-			})
-
-			It("should have subcommands", func() {
-				subs := []string{"edit", "list", "version"}
-				t.expectSubCommands(subs)
-			})
+		It("should have basic configurations", func() {
+			t.expectCmdBasics()
 		})
 
-		Context("edit command", func() {
-			JustBeforeEach(func() {
-				t.cmd = cmd.NewEditCmd()
-			})
-
-			It("should have basic configurations", func() {
-				t.expectCmdBasics()
-			})
-
-			Context("when given arguments", func() {
-				It("should accept 1 argument", func() {
-					err := t.cmd.Args(t.cmd, []string{"pod/name"})
-					Expect(err).ToNot(HaveOccurred())
-				})
-				It("should accept 2 arguments", func() {
-					err := t.cmd.Args(t.cmd, []string{"pods", "pod-name"})
-					Expect(err).ToNot(HaveOccurred())
-				})
-				It("should fail otherwise", func() {
-					err := t.cmd.Args(t.cmd, []string{})
-					Expect(err).To(HaveOccurred())
-
-					err = t.cmd.Args(t.cmd, []string{"pods", "pod-name", "another-one"})
-					Expect(err).To(HaveOccurred())
-				})
-			})
+		It("should have CommandDisplayNameAnnotatio annotation", func() {
+			t.expectCmdAnnotation(cobra.CommandDisplayNameAnnotation, "kubectl ephemeral-containers")
 		})
 
-		Context("list command", func() {
-			JustBeforeEach(func() {
-				t.cmd = cmd.NewListCmd()
-			})
+		It("should have subcommands", func() {
+			t.expectSubCommands()
+		})
 
-			It("should have basic configurations", func() {
-				t.expectCmdBasics()
+		It("should have persistent flags", func() {
+			// output flag and some kubeconfig flags
+			for _, flag := range []string{"output", "kubeconfig", "namespace"} {
+				t.expectFlag(flag, true)
+			}
+		})
+	})
+
+	Context("edit command", func() {
+		BeforeEach(func() {
+			t.cmd = cmd.NewEditCmd()
+		})
+
+		It("should have basic configurations", func() {
+			t.expectCmdBasics()
+		})
+
+		Context("when given arguments", func() {
+			It("should accept 1 argument", func() {
+				err := t.cmd.Args(t.cmd, []string{"pod/name"})
+				Expect(err).ToNot(HaveOccurred())
+			})
+			It("should accept 2 arguments", func() {
+				err := t.cmd.Args(t.cmd, []string{"pods", "pod-name"})
+				Expect(err).ToNot(HaveOccurred())
+			})
+			It("should fail otherwise", func() {
+				err := t.cmd.Args(t.cmd, []string{})
+				Expect(err).To(HaveOccurred())
+
+				err = t.cmd.Args(t.cmd, []string{"pods", "pod-name", "another-one"})
+				Expect(err).To(HaveOccurred())
 			})
 		})
 
-		Context("version command", func() {
-			JustBeforeEach(func() {
-				t.cmd = cmd.NewVersionCmd()
-			})
+		It("should have local flags", func() {
+			for _, flag := range []string{"editor", "minify"} {
+				t.expectFlag(flag, false)
+			}
+		})
+	})
 
-			It("should have basic configurations", func() {
-				t.expectCmdBasics()
-			})
+	Context("list command", func() {
+		BeforeEach(func() {
+			t.cmd = cmd.NewListCmd()
+		})
+
+		It("should have basic configurations", func() {
+			t.expectCmdBasics()
+		})
+
+		It("should have local flags", func() {
+			for _, flag := range []string{"all-namespaces"} {
+				t.expectFlag(flag, false)
+			}
+		})
+	})
+
+	Context("version command", func() {
+		BeforeEach(func() {
+			t.cmd = cmd.NewVersionCmd()
+		})
+
+		It("should have basic configurations", func() {
+			t.expectCmdBasics()
+		})
+
+		It("should have no local flags", func() {
+			Expect(t.cmd.HasLocalFlags()).To(BeFalse())
 		})
 	})
 })
@@ -111,7 +133,8 @@ type test struct {
 }
 
 type testInput struct {
-	cmd *cobra.Command
+	cmd     *cobra.Command
+	subCmds []string // sub-commands' Use
 }
 
 func newTest() *test {
@@ -121,10 +144,7 @@ func newTest() *test {
 }
 
 func (t *test) expectCmdAnnotation(key, value string) {
-	val, ok := t.cmd.Annotations[key]
-
-	Expect(ok).To(BeTrue())
-	Expect(val).To(Equal(value))
+	Expect(t.cmd.Annotations).To(HaveKeyWithValue(key, value))
 }
 
 func (t *test) expectCmdBasics() {
@@ -134,14 +154,34 @@ func (t *test) expectCmdBasics() {
 	Expect(t.cmd.Long).ToNot(BeEmpty())
 }
 
-func (t *test) expectSubCommands(subUses []string) {
+func (t *test) expectFlag(name string, persistent bool) {
+	var flags *pflag.FlagSet
+	if persistent {
+		flags = t.cmd.PersistentFlags()
+	} else {
+		flags = t.cmd.LocalFlags()
+	}
+
+	Expect(flags).ToNot(BeNil())
+	Expect(flags.HasFlags()).To(BeTrue())
+
+	names := make([]string, 0)
+	flags.VisitAll(func(flag *pflag.Flag) {
+		names = append(names, flag.Name)
+	})
+
+	Expect(names).To(ContainElement(name))
+}
+
+func (t *test) expectSubCommands() {
 	subs := t.cmd.Commands()
 
 	Expect(subs).ToNot(BeNil())
-	Expect(subs).To(HaveLen(len(subUses)))
+	Expect(subs).To(HaveLen(len(t.subCmds)))
 
-	for idx, sub := range subs {
-		Expect(sub).ToNot(BeNil())
-		Expect(sub.Use).To(Equal(subUses[idx]))
+	actual := make([]string, len(subs))
+	for idx := range subs {
+		actual[idx] = subs[idx].Use
 	}
+	Expect(actual).To(ConsistOf(t.subCmds))
 }

@@ -31,7 +31,6 @@ var (
 	TestPodName      string = "plugin-e2e"
 	DebugImage       string = "docker.io/library/busybox:1.28"
 	EphContainerName string = "debugger"
-	PodName          string = "plugin-e2e"
 )
 
 func (t *TestResource) NewListOutput(format string, namespace string) string {
@@ -60,7 +59,7 @@ func (t *TestResource) newListInAllNamespaces(format string) string {
     ]
   }
 ]
-`, PodName, t.Kubectl.Namespace, EphContainerName, PodName, t.AnotherNamespace, EphContainerName,
+`, TestPodName, t.Namespace, EphContainerName, TestPodName, t.AnotherNamespace, EphContainerName,
 		)
 	case "yaml":
 		return fmt.Sprintf(`- ephemeralContainers:
@@ -72,7 +71,7 @@ func (t *TestResource) newListInAllNamespaces(format string) string {
   name: %s
   namespace: %s
 
-`, EphContainerName, PodName, t.Kubectl.Namespace, EphContainerName, PodName, t.AnotherNamespace)
+`, EphContainerName, TestPodName, t.Namespace, EphContainerName, TestPodName, t.AnotherNamespace)
 	default: // table or empty
 		return fmt.Sprintf(
 			`+------------+-----------+----------------------+
@@ -82,7 +81,7 @@ func (t *TestResource) newListInAllNamespaces(format string) string {
 | %s | %s | %s             |
 +------------+-----------+----------------------+
 
-`, PodName, t.Kubectl.Namespace, EphContainerName, PodName, t.AnotherNamespace, EphContainerName)
+`, TestPodName, t.Namespace, EphContainerName, TestPodName, t.AnotherNamespace, EphContainerName)
 	}
 }
 
@@ -98,7 +97,7 @@ func (t *TestResource) newListInNamespace(format string, namespace string) strin
     ]
   }
 ]
-`, PodName, namespace, EphContainerName,
+`, TestPodName, namespace, EphContainerName,
 		)
 	case "yaml":
 		return fmt.Sprintf(`- ephemeralContainers:
@@ -106,7 +105,7 @@ func (t *TestResource) newListInNamespace(format string, namespace string) strin
   name: %s
   namespace: %s
 
-`, EphContainerName, PodName, t.Kubectl.Namespace)
+`, EphContainerName, TestPodName, t.Namespace)
 	default: // table or empty
 		return fmt.Sprintf(
 			`+------------+-----------+----------------------+
@@ -115,7 +114,7 @@ func (t *TestResource) newListInNamespace(format string, namespace string) strin
 | %s | %s | %s             |
 +------------+-----------+----------------------+
 
-`, PodName, namespace, EphContainerName)
+`, TestPodName, namespace, EphContainerName)
 	}
 }
 
