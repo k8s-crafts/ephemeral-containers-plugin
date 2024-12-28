@@ -61,8 +61,6 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 
 			When("there is no ephemeral container", func() {
 				It("should return empty message", func() {
-					By("running kubectl ephemeral-containers list")
-
 					actual, err := tr.RunPluginListCmd("", namespace)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(actual).To(Equal(tr.NewListEmptyMessage(namespace)))
@@ -79,8 +77,6 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 				})
 
 				DescribeTable("should list in expected format", func(format string) {
-					By("running kubectl ephemeral-containers list")
-
 					actual, err := tr.RunPluginListCmd(format, namespace)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(actual).To(Equal(tr.NewListOutput(format, namespace)))
@@ -103,8 +99,6 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 
 	Context("help", func() {
 		DescribeTable("should print help message for command", func(subCmd string) {
-			By("running kubectl ephemeral-containers help")
-
 			actual, err := tr.RunPluginHelpCmd(subCmd)
 
 			Expect(err).ToNot(HaveOccurred())
@@ -128,7 +122,7 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 	Context("edit", func() {
 		JustBeforeEach(func() {
 			for _, ns := range tr.GetTestNamespaces() {
-				By(fmt.Sprintf("adding an ephemeral container  to test pod in namespace %s", ns))
+				By(fmt.Sprintf("adding an ephemeral container to test pod in namespace %s", ns))
 
 				Expect(tr.RunDebugContainerForTestPod(ns, testutils.EphContainerName, true)).ToNot(HaveOccurred())
 			}
@@ -139,70 +133,74 @@ var _ = Describe("kubectl ephemeral-containers", func() {
 			tr.UnsetEnv("container_name")
 		})
 
-		When("making no changes", func() {
-			BeforeEach(func() {
-				tr.SetEnv("E2E_EDIT_ACTION", "")
-			})
-
-			It("should print a message", func() {
-				By("running kubectl ephemeral-containers edit")
-
-				actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
-
-				Expect(err).ToNot(HaveOccurred())
-				Expect(actual).To(Equal(fmt.Sprintf("Edit cancelled, no changes made for pod/%s\n", testutils.TestPodName)))
-			})
-		})
-
-		When("modifying an existing ephemeral container", func() {
-			BeforeEach(func() {
-				tr.SetEnv("E2E_EDIT_ACTION", "modify")
-			})
-
-			It("should fail with Forbidden error", func() {
-				By("running kubectl ephemeral-containers edit")
-
-				actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
+		Context("with a non-existing pod", func() {
+			It("should fail with NotFound error", func() {
+				podname := "not-a-pod"
+				actual, err := tr.RunPluginEditCmd(tr.Namespace, podname)
 
 				Expect(err).To(HaveOccurred())
-				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be changed", testutils.TestPodName, testutils.EphContainerName)))
+				Expect(actual).To(ContainSubstring(fmt.Sprintf("pods \"%s\" not found", podname)))
 			})
 		})
 
-		When("deleting an existing ephemeral container", func() {
-			BeforeEach(func() {
-				tr.SetEnv("E2E_EDIT_ACTION", "delete")
+		Context("with an existing pod", func() {
+			When("making no changes", func() {
+				BeforeEach(func() {
+					tr.SetEnv("E2E_EDIT_ACTION", "")
+				})
+
+				It("should print a message", func() {
+					actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
+
+					Expect(err).ToNot(HaveOccurred())
+					Expect(actual).To(Equal(fmt.Sprintf("Edit cancelled, no changes made for pod/%s\n", testutils.TestPodName)))
+				})
 			})
 
-			It("should fail with Forbidden error", func() {
-				By("running kubectl ephemeral-containers edit")
+			When("modifying an existing ephemeral container", func() {
+				BeforeEach(func() {
+					tr.SetEnv("E2E_EDIT_ACTION", "modify")
+				})
 
-				actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
+				It("should fail with Forbidden error", func() {
+					actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
 
-				Expect(err).To(HaveOccurred())
-				Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be removed", testutils.TestPodName, testutils.EphContainerName)))
-			})
-		})
-
-		When("adding a new ephemeral container", func() {
-			BeforeEach(func() {
-				tr.SetEnv("E2E_EDIT_ACTION", "add")
-				tr.SetEnv("container_name", "another-debugger")
+					Expect(err).To(HaveOccurred())
+					Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be changed", testutils.TestPodName, testutils.EphContainerName)))
+				})
 			})
 
-			It("should succeed with a message", func() {
-				By("running kubectl ephemeral-containers edit")
+			When("deleting an existing ephemeral container", func() {
+				BeforeEach(func() {
+					tr.SetEnv("E2E_EDIT_ACTION", "delete")
+				})
 
-				actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
+				It("should fail with Forbidden error", func() {
+					actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
 
-				Expect(err).ToNot(HaveOccurred())
-				Expect(actual).To(Equal(fmt.Sprintf("pod/%s successfully edited\n", testutils.TestPodName)))
+					Expect(err).To(HaveOccurred())
+					Expect(actual).To(ContainSubstring(fmt.Sprintf("Pod \"%s\" is invalid: spec.ephemeralContainers: Forbidden: existing ephemeral containers \"%s\" may not be removed", testutils.TestPodName, testutils.EphContainerName)))
+				})
+			})
 
-				names, err := tr.ListEphemeralContainerNamesForTestPod(tr.Kubectl.Namespace)
-				Expect(err).ToNot(HaveOccurred())
+			When("adding a new ephemeral container", func() {
+				BeforeEach(func() {
+					tr.SetEnv("E2E_EDIT_ACTION", "add")
+					tr.SetEnv("container_name", "another-debugger")
+				})
 
-				Expect(names).To(ContainSubstring(testutils.EphContainerName))
-				Expect(names).To(ContainSubstring("another-debugger"))
+				It("should succeed with a message", func() {
+					actual, err := tr.RunPluginEditCmd(tr.Kubectl.Namespace, testutils.TestPodName)
+
+					Expect(err).ToNot(HaveOccurred())
+					Expect(actual).To(Equal(fmt.Sprintf("pod/%s successfully edited\n", testutils.TestPodName)))
+
+					names, err := tr.ListEphemeralContainerNamesForTestPod(tr.Kubectl.Namespace)
+					Expect(err).ToNot(HaveOccurred())
+
+					Expect(names).To(ContainSubstring(testutils.EphContainerName))
+					Expect(names).To(ContainSubstring("another-debugger"))
+				})
 			})
 		})
 	})
