@@ -7,7 +7,7 @@ go 1.22.0
 require (
 	github.com/google/go-cmp v0.6.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/onsi/ginkgo/v2 v2.22.1
+	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
