@@ -7,7 +7,7 @@ GOARCH ?= $(shell go env GOARCH)
 
 
 ## Plugin version. Bump for each release
-VERSION ?= 1.4.0-dev
+VERSION ?= 1.3.0
 # Git Commit ID
 # GIT_COMMIT_NO := $(shell git rev-parse HEAD 2> /dev/null || true)
 # GIT_COMMIT_ID := $(if $(shell git status --porcelain --untracked-files=no),$(GIT_COMMIT_NO)-dirty,$(GIT_COMMIT_NO))
