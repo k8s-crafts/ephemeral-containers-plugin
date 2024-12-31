@@ -18,7 +18,7 @@ export PLUGIN_VERSION=v$(VERSION)
 ## Tool versions
 GO_LICENSE_VERSION ?= 1.39.0
 GOLANGCI_LINT_VERSION ?= 1.61.0
-GINKGO_VERSION ?= 2.22.1 # Using ginkgo v2
+GINKGO_VERSION ?= 2.22.2 # Using ginkgo v2
 
 ## Other flags
 SKIP_TESTS ?= false
