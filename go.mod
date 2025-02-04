@@ -11,7 +11,7 @@ require (
 	github.com/onsi/gomega v1.36.2
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/mod v0.22.0
+	golang.org/x/mod v0.23.0
 	k8s.io/api v0.31.4
 	k8s.io/apimachinery v0.31.4
 	k8s.io/cli-runtime v0.31.2
