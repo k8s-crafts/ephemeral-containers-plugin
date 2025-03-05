@@ -1,9 +1,8 @@
 module github.com/k8s-crafts/ephemeral-containers-plugin
 
-toolchain go1.22.4
+toolchain go1.23.7
 
 go 1.22.0
-
 require (
 	github.com/google/go-cmp v0.7.0
 	github.com/olekukonko/tablewriter v0.0.5
@@ -11,7 +10,7 @@ require (
 	github.com/onsi/gomega v1.36.2
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/mod v0.23.0
+	golang.org/x/mod v0.24.0
 	k8s.io/api v0.31.4
 	k8s.io/apimachinery v0.31.4
 	k8s.io/cli-runtime v0.31.2
